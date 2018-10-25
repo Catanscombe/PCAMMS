@@ -191,15 +191,15 @@ def rename(args):
             if '_R1' in line:
                 if line.endswith('.gz'):
                     os.system ('cp %s/%s %s/%s_%s_R1.fastq.gz' % (args.input_dir,line, paired_dir, line_split[0], args.run))
-                    os.system ('gunzip %s/%s_%s_R1.fastq.gz' % (paired_dir, line_split[0], args.run) )
+                    os.system ('gunzip %s/%s_%s_R1.fastq' % (paired_dir, line_split[0], args.run) )
                 else: 
-                    os.system ('cp %s/%s %s/%s_%s_R1.fastq.gz' % (args.input_dir,line, paired_dir, line_split[0], args.run))
+                    os.system ('cp %s/%s %s/%s_%s_R1.fastq' % (args.input_dir,line, paired_dir, line_split[0], args.run))
             if '_R2' in line:
                 if line.endswith('.gz'):
-                    os.system ('cp %s/%s %s/%s_%s_R2.fastq.gz' % (args.input_dir,line, paired_dir, line_split[0], args.run))
-                    os.system ('gunzip %s/%s_%s_R2.fastq.gz' % (paired_dir, line_split[0], args.run) )
+                    os.system ('cp %s/%s %s/%s_%s_R2.fastq' % (args.input_dir,line, paired_dir, line_split[0], args.run))
+                    os.system ('gunzip %s/%s_%s_R2.fastq' % (paired_dir, line_split[0], args.run) )
                 else: 
-                    os.system ('cp %s/%s %s/%s_%s_R2.fastq.gz' % (args.input_dir,line, paired_dir, line_split[0], args.run))
+                    os.system ('cp %s/%s %s/%s_%s_R2.fastq' % (args.input_dir,line, paired_dir, line_split[0], args.run))
         
         print ('samples copied to %s and renamed based on file number and run ID' % (paired_dir))
     
