@@ -335,7 +335,7 @@ def merge_reads(args, directory):
 
 def neg_control_class (args, directory):
 
-    Clark_dir = ('%s/CLARKSCV1.2.5' % (directory))
+    Clark_dir = ('%s/CLARKSCV1.2.5.1' % (directory))
     
     try:
         os.mkdir('%s/qc_results' % (args.output_dir))

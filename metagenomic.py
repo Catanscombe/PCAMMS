@@ -154,7 +154,7 @@ def neg_library(args, directory):
         print 'contamination mapping complete, contamination reads removed from further analysis'
 
 def classify_samples(args, directory):
-    Clark_dir = ('%s/CLARKSCV1.2.5' % (directory))
+    Clark_dir = ('%s/CLARKSCV1.2.5.1' % (directory))
     
     for each_file in os.listdir(args.output_dir):
         if each_file.endswith('.fastq'):
