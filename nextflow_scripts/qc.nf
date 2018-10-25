@@ -22,7 +22,7 @@ process do_fastqc  {
 	set val(name), file(reads) from do_fastqc
 	
 	output:
-	file "*_fastqc" into fastqc_output
+	file "*_fastqc*" into fastqc_output
 
 	
 	
