@@ -10,6 +10,18 @@ make
 sudo mv fastq-join /usr/local/bin/
 cd ..
 
+#install bwa 
+sudo apt-get install bwa 
+
+#download host 
+mkdir host
+cd host
+wget         ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/*
+cat *.gz > human.fasta.gz
+rm !(human.fasta.gz)
+bwa index human.gz
+cd ..
+
 
 #install CLARK
 wget http://clark.cs.ucr.edu/Download/CLARKV1.2.5.tar.gz
@@ -44,4 +56,3 @@ pip install --user multiqc
 #install seqtk
 sudo apt install seqtk
 
-sudo apt-get install bwa
