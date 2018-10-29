@@ -13,7 +13,7 @@ cd ..
 #install bwa 
 sudo apt-get install bwa 
 
-#download host 
+#download human genome 
 mkdir host
 cd host
 wget         ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/*
@@ -28,17 +28,24 @@ wget http://clark.cs.ucr.edu/Download/CLARKV1.2.5.tar.gz
 tar -xzvf CLARKV1.2.5.tar.gz 
 cd CLARKSCV1.2.5.1/
 ./install.sh 
-cp ../Custom .
-./set_targets.sh  DIR_DB bacteria viruses fungi human custom
-cd ..
+./set_targets.sh  DIR_DB bacteria viruses fungi human
+gunzip ../example/sample1_meta_R* 
+rm -r DIR_DB/Bacteria/
+rm -r DIR_DB/Viruses/
+rm -r DIR_DB/Fungi/
+rm -r DIR_DB/Human/
+
+
+
+
 
 #install krona tools
 wget https://github.com/marbl/Krona/releases/download/v2.7/KronaTools-2.7.tar
 tar -vxf KronaTools-2.7.tar
 cd KronaTools-2.7/
-sudo ./install.pl 
-
-#human genome
+sudo ./install.pl
+./updateTaxonomy.sh 
+cd .. 
 
 
 #install nextflow
@@ -55,4 +62,6 @@ pip install --user multiqc
 
 #install seqtk
 sudo apt install seqtk
+
+#?symlink scripts/clark etc 
 
