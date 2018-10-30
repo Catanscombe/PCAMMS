@@ -499,15 +499,13 @@ def auto_assemble(args, directory):
                 except OSError:
                     pass
                     
-                if line[6] == '1307800':
-                    writer = csv.writer (f, delimiter = ',')
-                    writer.writerow ([line[0], name, genome_size, line[2], line[5], line[6], 'Pegi_A.fna', 'Pegi_A.fna'])
-                else:
-                    pass
-                       
+                                       
                 if os.path.exists('%s/refs/%s' % (directory, result_filename)):
                     print 'exists'
                     os.system ('gunzip -f %s/refs/%s' % (directory, result_filename ))
+                    writer= csv.writer (f, delimiter = ',')
+                    writer.writerow ([line[0],name, genome_size, line[2], line[5], line[6] , result_ftp_unzip , result_ftp])
+                    
                 else:
                     print line[0]    
                     os.system ('wget -P %s/refs %s ' % (directory, result_ftp))
