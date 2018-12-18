@@ -5,9 +5,14 @@ This pipeline is still in development
 
 
 Installation:
+
 git clone https://github.com/Catanscombe/PCAMMS.git
+
 cd PCAMMS
+
 nohup ./setup
+
+
 
 this will install the following prerequisites:
 *java version 8 
