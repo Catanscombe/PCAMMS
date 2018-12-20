@@ -523,6 +523,10 @@ def auto_assemble(args, directory):
                 line = line.split(",")
                 ref = line[6]
                 ref_path = [('%s' + '/refs/' + ref) % (directory)] 
+                ref_path =  ref_path.replace('[' , '')
+                ref_path =  ref_path.replace(']' , '')
+                ref_path =  ref_path.replace("'", "")
+
                 ref_ftp = line[7]
                 if os.path.exists ('%s/refs/%s.pac' % (directory, ref)):
                     print 'reference indexed'
@@ -533,13 +537,13 @@ def auto_assemble(args, directory):
         for line in open ('%s/%s_bwa_index.csv' % (args.output_dir, args.run) ).readlines():
             line = line.strip().split(',')
             ref_filename = line[1]
-            ref_filename = ref_filename.replace('[' , '')
-            ref_filename = ref_filename.replace(']' , '')
-            ref_filename = ref_filename.replace("'", "")
+            #ref_filename = ref_filename.replace('[' , '')
+            #ref_filename = ref_filename.replace(']' , '')
+            #ref_filename = ref_filename.replace("'", "")
             ref_gunzip = line[0]
-            ref_gunzip = ref_gunzip.replace('[' , '')
-            ref_gunzip = ref_gunzip.replace(']' , '')
-            ref_gunzip = ref_gunzip.replace("'", "")
+            #ref_gunzip = ref_gunzip.replace('[' , '')
+            #ref_gunzip = ref_gunzip.replace(']' , '')
+            #ref_gunzip = ref_gunzip.replace("'", "")
             ref_gunzip = ref_gunzip + '.gz'
 
            
