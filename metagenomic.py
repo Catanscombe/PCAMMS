@@ -500,18 +500,18 @@ def auto_assemble(args, directory):
                 except OSError:
                     pass
                     
-                print ('%s is ref' % (result_filename))                      
-                if os.path.exists('%s/refs/%s' % (directory, result_filename)):
-                    print 'exists'
-                    os.system ('gunzip -f %s/refs/%s' % (directory, result_filename ))
-                    writer= csv.writer (f, delimiter = ',')
-                    writer.writerow ([line[0],name, genome_size, line[2], line[5], line[6] , result_ftp_unzip , result_ftp])
+                #print ('%s is ref' % (result_filename))                      
+                #if os.path.exists('%s/refs/%s' % (directory, result_filename)):
+                 #   print 'exists'
+                  #  os.system ('gunzip -f %s/refs/%s' % (directory, result_filename ))
+                writer= csv.writer (f, delimiter = ',')
+                writer.writerow ([line[0],name, genome_size, line[2], line[5], line[6] , result_ftp_unzip , result_ftp])
                     
-                if not os.path.exists('%s/refs/%s' % (directory, result_filename)):
-                    print line[0]  
-                    print ('downloading %s' % (result_filename))  
+                #if not os.path.exists('%s/refs/%s' % (directory, result_filename)):
+                 #   print line[0]  
+                  #  print ('downloading %s' % (result_filename))  
                     #os.system ('wget -P %s/refs %s ' % (directory, result_ftp))
-                    os.system ('gunzip -f %s/refs/%s' % (directory, result_filename ))
+                   # os.system ('gunzip -f %s/refs/%s' % (directory, result_filename ))
                     
             
                     writer= csv.writer (f, delimiter = ',')
@@ -523,13 +523,20 @@ def auto_assemble(args, directory):
                 line = line.split(",")
                 ref = line[6]
                 ref_path = [('%s' + '/refs/' + ref) % (directory)] 
+                ref_ftp = line[7]
                 if os.path.exists ('%s/refs/%s.pac' % (directory, ref)):
                     print 'reference indexed'
                 else: 
                     writer = csv.writer (bf, delimiter = ',')
-                    writer.writerow ([ref_path])
+                    writer.writerow ([ref_path, ref_ftp])
                     print ref_path
-
+        for line in open ('%s/%s_bwa_index.csv' % (args.output_dir, args.run) ).readlines():
+            line = line.strip().split(',')
+            ref_filename = result_filename.replace('[' , '')
+            ref_filename = result_filename.replace(']' , '')
+            ref_filename = result_filename.replace("'", "")
+            os.system ('wget -P %s/refs %s ' % (directory, ref_filename))
+# this is looping twice .......
         
 
         os.system ('nextflow run %s/nextflow_scripts/bwa_index.nf --refdir %s/refs' % (directory , directory))
