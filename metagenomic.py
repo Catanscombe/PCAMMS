@@ -522,7 +522,7 @@ def auto_assemble(args, directory):
                 line= line.strip()
                 line = line.split(",")
                 ref = line[6]
-                ref_path = ('%s/refs/%s' %  (directory, ref) 
+                ref_path = ('%s/refs/%s' %  (directory, ref)) 
                 #ref_path =  ref_path.replace('[' , '')
                 #ref_path =  ref_path.replace(']' , '')
                 #ref_path =  ref_path.replace("'", "")
