@@ -546,7 +546,7 @@ def auto_assemble(args, directory):
 # this is looping twice .......
         
 
-        os.system ('nextflow run %s/nextflow_scripts/bwa_index.nf --list %s/%s_bwa_index.csv --refdir %s/refs' % (directory , directory , args.run, directory))
+        os.system ('nextflow run %s/nextflow_scripts/bwa_index.nf --list %s/%s_bwa_index.csv --refdir %s/refs' % (directory , args.output_dir , args.run, directory))
         try:
             os.mkdir('%s/reference_mapping' % (args.output_dir))
         except OSError:
