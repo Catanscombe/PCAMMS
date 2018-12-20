@@ -24,7 +24,7 @@ process bwa_index {
 	
 
 	output:
-	file ("${ref}.*") 
+	file ("${ref}*") 
 
 
 
