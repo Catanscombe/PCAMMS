@@ -30,7 +30,7 @@ process bwa_index {
 
 	shell:
 	'''
-	bwa index  !{dataset_id}.fna
+	bwa index  !{ref}
 	
 	'''
 
