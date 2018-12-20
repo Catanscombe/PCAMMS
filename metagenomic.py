@@ -539,6 +539,7 @@ def auto_assemble(args, directory):
             pass
         os.system ('nextflow run %s/nextflow_scripts/bwa_mem.nf --threads %s --list  %s/%s_sample_ref.csv --path %s/paired/ --refdir %s/refs/ --dataDir %s/reference_mapping/' % (directory, args.threads, out_dir, args.run, out_dir, directory, out_dir))
 
+        os.system ('gzip %s/refs/*.fna' % (directory))
         
         with open ('%s/%s_reference_mapping.csv' % (args.output_dir, args.run) , 'a') as f:
             for each_line in open ('%s/%s_sample_ref.csv' % (args.output_dir, args.run)):
