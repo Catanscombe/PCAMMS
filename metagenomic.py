@@ -507,7 +507,7 @@ def auto_assemble(args, directory):
                     writer= csv.writer (f, delimiter = ',')
                     writer.writerow ([line[0],name, genome_size, line[2], line[5], line[6] , result_ftp_unzip , result_ftp])
                     
-                else:
+                if not os.path.exists('%s/refs/%s' % (directory, result_filename)):
                     print line[0]  
                     print ('downloading %s' % (result_filename))  
                     os.system ('wget -P %s/refs %s ' % (directory, result_ftp))
