@@ -517,7 +517,7 @@ def auto_assemble(args, directory):
                     writer.writerow ([line[0],name, genome_size, line[2], line[5], line[6] , result_ftp_unzip , result_ftp])
 
         with open ('%s/%s_bwa_index.csv' % (args.output_dir, args.run) , 'a') as bf:
-            for line in ('%s/%s_sample_ref.csv' % (args.output_dir, args.run, )).readlines():
+            for line in ('%s/%s_sample_ref.csv' % (args.output_dir, args.run )).readlines():
                 line= line.strip()
                 line = line.split(",")
                 ref = line[6]
