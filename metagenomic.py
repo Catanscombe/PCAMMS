@@ -510,7 +510,7 @@ def auto_assemble(args, directory):
                 if not os.path.exists('%s/refs/%s' % (directory, result_filename)):
                     print line[0]  
                     print ('downloading %s' % (result_filename))  
-                    os.system ('wget -P %s/refs %s ' % (directory, result_ftp))
+                    #os.system ('wget -P %s/refs %s ' % (directory, result_ftp))
                     os.system ('gunzip -f %s/refs/%s' % (directory, result_filename ))
                     
             
@@ -522,7 +522,7 @@ def auto_assemble(args, directory):
                 line= line.strip()
                 line = line.split(",")
                 ref = line[6]
-                ref_path = ['%s' + '/refs/' + ref]
+                ref_path = [('%s' + '/refs/' + ref) % (directory)] 
                 if os.path.exists ('%s/refs/%s.pac' % (directory, ref)):
                     print 'reference indexed'
                 else: 
