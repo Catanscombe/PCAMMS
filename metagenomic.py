@@ -514,8 +514,8 @@ def auto_assemble(args, directory):
                    # os.system ('gunzip -f %s/refs/%s' % (directory, result_filename ))
                     
             
-                    writer= csv.writer (f, delimiter = ',')
-                    writer.writerow ([line[0],name, genome_size, line[2], line[5], line[6] , result_ftp_unzip , result_ftp])
+                    #writer= csv.writer (f, delimiter = ',')
+                    #writer.writerow ([line[0],name, genome_size, line[2], line[5], line[6] , result_ftp_unzip , result_ftp])
 
         with open ('%s/%s_bwa_index.csv' % (args.output_dir, args.run) , 'a') as bf:
             for line in open ('%s/%s_sample_ref.csv' % (args.output_dir, args.run )).readlines():
@@ -532,10 +532,19 @@ def auto_assemble(args, directory):
                     print ref_path
         for line in open ('%s/%s_bwa_index.csv' % (args.output_dir, args.run) ).readlines():
             line = line.strip().split(',')
-            ref_filename = result_filename.replace('[' , '')
-            ref_filename = result_filename.replace(']' , '')
-            ref_filename = result_filename.replace("'", "")
+            ref_filename = line[1]
+            ref_filename = ref_filename.replace('[' , '')
+            ref_filename = ref_filename.replace(']' , '')
+            ref_filename = ref_filename.replace("'", "")
+            ref_gunzip = line[0]
+            ref_gunzip = ref_gunzip.replace('[' , '')
+            ref_gunzip = ref_gunzip.replace(']' , '')
+            ref_gunzip = ref_gunzip.replace("'", "")
+            ref_gunzip = ref_gunzip + '.gz'
+
+           
             os.system ('wget -P %s/refs %s ' % (directory, ref_filename))
+            os.system ('gunzip %s' % (ref_gunzip) 
 # this is looping twice .......
         
 
