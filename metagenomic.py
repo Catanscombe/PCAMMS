@@ -522,10 +522,10 @@ def auto_assemble(args, directory):
                 line= line.strip()
                 line = line.split(",")
                 ref = line[6]
-                ref_path = [('%s' + '/refs/' + ref) % (directory)] 
-                ref_path =  ref_path.replace('[' , '')
-                ref_path =  ref_path.replace(']' , '')
-                ref_path =  ref_path.replace("'", "")
+                ref_path = ('%s/refs/%s' %  (directory, ref) 
+                #ref_path =  ref_path.replace('[' , '')
+                #ref_path =  ref_path.replace(']' , '')
+                #ref_path =  ref_path.replace("'", "")
 
                 ref_ftp = line[7]
                 if os.path.exists ('%s/refs/%s.pac' % (directory, ref)):
