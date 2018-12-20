@@ -30,7 +30,7 @@ process bwa_index {
 
 	shell:
 	'''
-	bwa index !{params.refdir}!{ref}
+	bwa index !{params.refdir}/!{ref}
 	
 	'''
 
