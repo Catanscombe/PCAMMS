@@ -544,7 +544,7 @@ def auto_assemble(args, directory):
 
            
             os.system ('wget -P %s/refs %s ' % (directory, ref_filename))
-            os.system ('gunzip %s' % (ref_gunzip) 
+            os.system ('gunzip %s' % (ref_gunzip)) 
 # this is looping twice .......
         
 
