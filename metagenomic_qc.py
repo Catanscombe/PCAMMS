@@ -9,14 +9,14 @@ def main():
     parser.add_argument( 'input_dir',  help = 'directory containing input files')
     parser.add_argument('output_dir', help ='output directory')
     parser.add_argument( 'run',  help = 'run description')
-    parser.add_argument ('-nl' , '--neg_list' , help = 'path to csv containig information on negative control samples, see example for format')
+    parser.add_argument ('-nl' , '--neg_list' , help = 'path to csv containing information on negative control samples, see example for format')
     parser.add_argument('-r' , '--rename' , choices = ['yes' , 'no'], default = 'yes', help = 'option to rename files when in results directory, based on sample number and run name, default is yes')
-    parser.add_argument('-id' , '--sample_ID', help = 'path to csv containing sample number and sample ID, will rename samples based on sample number and sample ID, see example for format. If the run contains one or more negative control, please submit seperatley un --neg_list command' )
+    parser.add_argument('-id' , '--sample_ID', help = 'path to csv containing sample number and sample ID, will rename samples based on sample number and sample ID, see example for format. If the run contains one or more negative control, please submit seperately using --neg_list command' )
     parser.add_argument('-s' , '--sample_list' , help = 'provide a list of samples to process, default is to process all files in input directory')
-    parser.add_argument('-n1', '--neg_sample_R1',  help = 'path to negtaive control file R1')
-    parser.add_argument('-n2', '--neg_sample_R2', help = 'path to negtaive control file R2')
-    parser.add_argument ('-t' , '--threads' , default = '4', help = 'number of threads availble, default is 4')
-    parser.add_argument( '-rh', '--remove_host', choices = ['yes', 'no'], default = 'yes' , help = 'option remove host reads at the begiining of analysis, default yes. Default host is Human, if another host is needed, place the refernce fasta in host directory. See README for more detail' )
+    parser.add_argument('-n1', '--neg_sample_R1',  help = 'path to negative control file R1')
+    parser.add_argument('-n2', '--neg_sample_R2', help = 'path to negative control file R2')
+    parser.add_argument ('-t' , '--threads' , default = '4', help = 'number of threads available, default is 4')
+    parser.add_argument( '-rh', '--remove_host', choices = ['yes', 'no'], default = 'yes' , help = 'option remove host reads at the beginning  of analysis, default yes. Default host is Human, if another host is needed, place the reference   fasta in host directory. See README for more detail' )
 
     args = parser.parse_args()
     
@@ -27,7 +27,7 @@ def main():
     remove_host(args, directory)
     merge_reads(args, directory)
     neg_control_class (args, directory)
-
+    remove_work_dir ()
 
 def id_dir( args, directory):
 # check if input and output directorys exists, if optional files are given, checks the file path,  makes sample list
@@ -383,5 +383,8 @@ def neg_control_class (args, directory):
                         
                 os.system (' cp %s/neg_control/*.html %s/qc_results/' % (args.output_dir, args.output_dir))
         print 'classification performed on negative control(s)'
+
+def remove_work_dir ():
+    os.system ('rm -r work')
 main()
 

@@ -29,6 +29,7 @@ def main():
     predict_genome_cov(args, directory)
     auto_assemble(args, directory)
     taxon_abundance(args)
+    remove_work_dir ()
 
 def check(args):
 # check the input parameters
@@ -515,6 +516,18 @@ def auto_assemble(args, directory):
                     writer= csv.writer (f, delimiter = ',')
                     writer.writerow ([line[0],name, genome_size, line[2], line[5], line[6] , result_ftp_unzip , result_ftp])
 
+        with open ('%s/%s_bwa_index.csv' % (args.output_dir, args.run) , 'a') as bf:
+            for line in ('%s/%s_sample_ref.csv' % (args.output_dir, args.run, )).readlines():
+                line= line.strip()
+                line = line.split(",")
+                ref = line[6]
+                ref_path = ['%s' + '/refs/' + ref]
+                if os.path.exists ('%s/refs/%s.pac' % (directory, ref)):
+                    print 'refernce indexed'
+                else: 
+                    writer = csv.writer (bf, delimiter = ',')
+                    writer.writerow ([ref_path])
+                    print ref_path
 
         
 
@@ -699,4 +712,8 @@ def taxon_abundance(args):
     os.system('cp %s/*/*.html %s/results' % (args.output_dir, args.output_dir))   
 
     print ('report on frequency at which taxon IDs were identified in the run complete, see %s/%s_taxonID_info.csv ' % (args.output_dir, args.run))    
+
+def remove_work_dir ():
+    os.system ('rm -r work')
+
 main()
