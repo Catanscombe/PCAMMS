@@ -448,7 +448,7 @@ def predict_genome_cov(args, directory):
                 taxon_found = line[6]
 
                 if taxon_found in contaminants:
-                    print taxon_found 'on contaminants list, removed from further analysis'
+                    print ( '%s on contaminants list, removed from further analysis' % (taxon_found))
                 else: 
                     writer.writerow(line)
             
