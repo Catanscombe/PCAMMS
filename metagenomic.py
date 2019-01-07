@@ -23,9 +23,9 @@ def main():
     
     check(args)
     
-    neg_library(args, directory)
-    results_dir = classify_samples(args, directory)
-    classification_info(args, results_dir)
+    #neg_library(args, directory)
+    #results_dir = classify_samples(args, directory)
+    #classification_info(args, results_dir)
     predict_genome_cov(args, directory)
     #auto_assemble(args, directory)
     #taxon_abundance(args)
@@ -446,7 +446,7 @@ def predict_genome_cov(args, directory):
                     if taxon == taxon_found:
                         print taxon_found
                         print 'taxon found'
-                    if taxon != taxon_found:
+                    else: 
                         writer.writerow(line)
             
 
