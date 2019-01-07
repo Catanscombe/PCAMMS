@@ -442,7 +442,7 @@ def predict_genome_cov(args, directory):
                 for line in open ('%s/%s_genome_cov.csv' % (args.output_dir, args.run)):
                     line = line.strip().split(',')
                     taxon_found = line[6]
-                    print taxon found
+                    print taxon_found
                     if taxon != taxon_found:
                         writer.writerow(line)
             
