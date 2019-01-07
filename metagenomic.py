@@ -439,12 +439,15 @@ def predict_genome_cov(args, directory):
                 taxon = line[0]
                 print taxon
 
-                #for line in open ('%s/%s_genome_cov.csv' % (args.output_dir, args.run)):
-                 #   line = line.strip().split(',')
-                  #  taxon_found = line[6]
-                   # print taxon_found
-                    #if taxon != taxon_found:
-                     #   writer.writerow(line)
+                for line in open ('%s/%s_genome_cov.csv' % (args.output_dir, args.run)):
+                    line = line.strip().split(',')
+                    taxon_found = line[6]
+                    print taxon_found
+                    if taxon == taxon_found:
+                        print taxon_found
+                        print 'taxon found'
+                    if taxon != taxon_found:
+                        writer.writerow(line)
             
 
 #    with open ('%s/%s_genome_cov2.csv' % (args.output_dir, args.run), 'r') as in_file,  open ('%s/%s_genome_cov3.csv' % (args.output_dir, args.run), 'w') as out_file:
