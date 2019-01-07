@@ -447,6 +447,13 @@ def predict_genome_cov(args, directory):
                         writer.writerow(line)
             
 
+    with open ('%s/%s_genome_cov2.csv' % (args.output_dir, args.run), 'r') as in_file, open open ('%s/%s_genome_cov3.csv' % (args.output_dir, args.run), 'w') as out_file:
+        seen = set()
+        for line in in_file:
+            if line in seen: continue
+            see.add(line)
+            out_file.write(line)
+            
 
 
             #os.system( 'grep %s/%s_genome_cov.csv -v %s > %s/%s_genome_cov2.csv' % (args.output_dir, args.run, taxon, args.output_dir, args.run))
