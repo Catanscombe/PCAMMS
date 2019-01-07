@@ -444,6 +444,7 @@ def predict_genome_cov(args, directory):
                     taxon_found = line[6]
                     if taxon == taxon_found:
                         print taxon_found
+                        print line 
                         print 'taxon found'
                     else: 
                         writer.writerow(line)
