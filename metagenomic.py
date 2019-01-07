@@ -429,13 +429,13 @@ def predict_genome_cov(args, directory):
                         pass
     os.system('sort %s/%s_genome_cov.csv > %s/%s_genome_cov2.csv' % (args.output_dir, args.run, args.output_dir, args.run))
     os.system('mv %s/%s_genome_cov2.csv %s/%s_genome_cov.csv' % (args.output_dir, args.run, args.output_dir, args.run)) 
-    os.system('rm %s/%s_genome_cov2.csv' % (args.output_dir, args.run)) 
+    
 
     if args.taxon_contaminants:
         with open ('%s/%s_genome_cov2.csv' % (args.output_dir, args.run), 'a') as out:
             writer = csv.writer(out)
             for taxon in open('%s' % (args.taxon_contaminants)):
-                taxon = taxon.strip()
+                taxon = taxon.strip().split(',')
                 taxon =taxon[0]
                 print taxon
 
