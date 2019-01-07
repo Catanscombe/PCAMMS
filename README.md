@@ -93,12 +93,67 @@ this will install the following prerequisites:
 
 
 Usage:
-usage: metagenomic_qc.py [-h] [-nl NEG_LIST] [-r {yes,no}] [-id SAMPLE_ID]
+uusage: metagenomic_qc.py [-h] [-nl NEG_LIST] [-r {yes,no}] [-id SAMPLE_ID]
                          [-s SAMPLE_LIST] [-n1 NEG_SAMPLE_R1]
                          [-n2 NEG_SAMPLE_R2] [-t THREADS] [-rh {yes,no}]
                          input_dir output_dir run
 
+positional arguments:
+  input_dir             directory containing input files
+  output_dir            output directory
+  run                   run description
 
+optional arguments:
+  -h, --help            show this help message and exit
+  -nl NEG_LIST, --neg_list NEG_LIST
+                        path to csv containig information on negative control
+                        samples, see example for format
+  -r {yes,no}, --rename {yes,no}
+                        option to rename files when in results directory,
+                        based on sample number and run name, default is yes
+  -id SAMPLE_ID, --sample_ID SAMPLE_ID
+                        path to csv containing sample number and sample ID,
+                        will rename samples based on sample number and sample
+                        ID, see example for format. If the run contains one or
+                        more negative control, please submit seperatley un
+                        --neg_list command
+  -s SAMPLE_LIST, --sample_list SAMPLE_LIST
+                        provide a list of samples to process, default is to
+                        process all files in input directory
+  -n1 NEG_SAMPLE_R1, --neg_sample_R1 NEG_SAMPLE_R1
+                        path to negtaive control file R1
+  -n2 NEG_SAMPLE_R2, --neg_sample_R2 NEG_SAMPLE_R2
+                        path to negtaive control file R2
+  -t THREADS, --threads THREADS
+                        number of threads availble, default is 4
+  -rh {yes,no}, --remove_host {yes,no}
+                        option remove host reads at the begiining of analysis,
+                        default yes. Default host is Human, if another host is
+                        needed, place the refernce fasta in host directory.
+                        See README for more detail
+
+usage: metagenomic.py [-h] [-c CONTAMINATION]
+                      [-nc NEG_CONTROL [NEG_CONTROL ...]]
+                      [-tc TAXON_CONTAMINANTS] [-t THREADS]
+                      output_dir run
+
+positional arguments:
+  output_dir            output directory
+  run                   run description
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c CONTAMINATION, --contamination CONTAMINATION
+                        path to fasta containing local contamination library
+  -nc NEG_CONTROL [NEG_CONTROL ...], --neg_control NEG_CONTROL [NEG_CONTROL ...]
+                        list the merged negative control fastq files from
+                        metagenomic.py you wish to be used as contamination
+                        libraries
+  -tc TAXON_CONTAMINANTS, --taxon_contaminants TAXON_CONTAMINANTS
+                        provide a list of taxon ID you wish to be ignored in
+                        the process
+  -t THREADS, --threads THREADS
+                        number of threads availble, default is 4
 Basic
 
 *metagenomic_qc.py*
@@ -116,7 +171,7 @@ runname_read_info.csv: contains raw read number, merged read number, % reads mer
 
 $ python Path/to/PCAMMS/metagenomic.py output/directory runname
 
-outputs:
+outputs: 
 
 directory will be made in output/directory/results 
 contains:
@@ -137,6 +192,7 @@ Download the directories example_output/qc_results and example_output/results to
 With Negative control
 
 $ python Path/to/PCAMMS/metagenomic_qc.py directory/containing/raw-illumina/fastqs output/directory runname -n1 Path/to/neg_control_R1.fastq -n2 Path/to/neg_control_R2.fastq 
+
 
 
 
