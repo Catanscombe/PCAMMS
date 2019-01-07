@@ -428,13 +428,29 @@ def predict_genome_cov(args, directory):
                     except ValueError:
                         pass
     os.system('sort %s/%s_genome_cov.csv > %s/%s_genome_cov2.csv' % (args.output_dir, args.run, args.output_dir, args.run))
-    os.system('mv %s/%s_genome_cov2.csv %s/%s_genome_cov.csv' % (args.output_dir, args.run, args.output_dir, args.run))
+    os.system('mv %s/%s_genome_cov2.csv %s/%s_genome_cov.csv' % (args.output_dir, args.run, args.output_dir, args.run)) 
+    os.system('rm %s/%s_genome_cov2.csv' % (args.output_dir, args.run)) 
 
     if args.taxon_contaminants:
-        for taxon in open('%s' % (args.taxon_contaminants)):
+        with open ('%s/%s_genome_cov2.csv' % (args.output_dir, args.run), 'a') as out:
+            writer = csv.writer(out)
+            for taxon in open('%s' % (args.taxon_contaminants)):
             taxon = taxon.strip()
-            os.system( 'grep %s/%s_genome_cov.csv -v %s > %s/%s_genome_cov2.csv' % (args.output_dir, args.run, taxon, args.output_dir, args.run))
-            os.system('mv %s/%s_genome_cov2.csv %s/%s_genome_cov.csv'% (args.output_dir, args.run, args.output_dir, args.run))
+            taxon =taxon[0]
+            print taxon
+
+            for line in open ('%s/%s_genome_cov.csv' % (args.output_dir, args.run)):
+                line = line.strip().split(',')
+                taxon_found = line[6]
+                print taxon found
+                if taxon != taxon_found:
+                    writer.writerow(line)
+            
+
+
+
+            #os.system( 'grep %s/%s_genome_cov.csv -v %s > %s/%s_genome_cov2.csv' % (args.output_dir, args.run, taxon, args.output_dir, args.run))
+            #os.system('mv %s/%s_genome_cov2.csv %s/%s_genome_cov.csv'% (args.output_dir, args.run, args.output_dir, args.run))
 
     #print ('estimation of genome coverage for each taxon identified in each samples complete, information can be found in %s/%s_genome_cov.csv' % (args.output_dir, args.run))
 
