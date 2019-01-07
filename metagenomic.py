@@ -451,7 +451,7 @@ def predict_genome_cov(args, directory):
         seen = set()
         for line in in_file:
             if line in seen: continue
-            see.add(line)
+            seen.add(line)
             out_file.write(line)
 
 
