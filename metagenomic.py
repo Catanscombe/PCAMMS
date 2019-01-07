@@ -435,7 +435,7 @@ def predict_genome_cov(args, directory):
         with open ('%s/%s_genome_cov2.csv' % (args.output_dir, args.run), 'a') as out:
             writer = csv.writer(out)
             for line in open('%s' % (args.taxon_contaminants)):
-                line = taxon.strip().split(',')
+                line = linex.strip().split(',')
                 taxon = line[0]
                 print taxon
 
