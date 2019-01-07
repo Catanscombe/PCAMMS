@@ -27,9 +27,9 @@ def main():
     results_dir = classify_samples(args, directory)
     classification_info(args, results_dir)
     predict_genome_cov(args, directory)
-    auto_assemble(args, directory)
-    taxon_abundance(args)
-    remove_work_dir ()
+    #auto_assemble(args, directory)
+    #taxon_abundance(args)
+    #remove_work_dir ()
 
 def check(args):
 # check the input parameters
@@ -439,20 +439,20 @@ def predict_genome_cov(args, directory):
                 taxon = line[0]
                 print taxon
 
-                for line in open ('%s/%s_genome_cov.csv' % (args.output_dir, args.run)):
-                    line = line.strip().split(',')
-                    taxon_found = line[6]
-                    print taxon_found
-                    if taxon != taxon_found:
-                        writer.writerow(line)
+                #for line in open ('%s/%s_genome_cov.csv' % (args.output_dir, args.run)):
+                 #   line = line.strip().split(',')
+                  #  taxon_found = line[6]
+                   # print taxon_found
+                    #if taxon != taxon_found:
+                     #   writer.writerow(line)
             
 
-    with open ('%s/%s_genome_cov2.csv' % (args.output_dir, args.run), 'r') as in_file,  open ('%s/%s_genome_cov3.csv' % (args.output_dir, args.run), 'w') as out_file:
-        seen = set()
-        for line in in_file:
-            if line in seen: continue
-            seen.add(line)
-            out_file.write(line)
+#    with open ('%s/%s_genome_cov2.csv' % (args.output_dir, args.run), 'r') as in_file,  open ('%s/%s_genome_cov3.csv' % (args.output_dir, args.run), 'w') as out_file:
+ #       seen = set()
+  #      for line in in_file:
+   #         if line in seen: continue
+    #        seen.add(line)
+     #       out_file.write(line)
 
 
 
