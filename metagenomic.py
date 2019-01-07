@@ -434,20 +434,23 @@ def predict_genome_cov(args, directory):
     if args.taxon_contaminants:
         with open ('%s/%s_genome_cov2.csv' % (args.output_dir, args.run), 'a') as out:
             writer = csv.writer(out)
+
+            contaminants=[]
             for line in open('%s' % (args.taxon_contaminants)):
                 line = line.strip().split(',')
                 taxon = line[0]
                 print taxon
+                contaminants.append(taxon)
 
-                for line in open ('%s/%s_genome_cov.csv' % (args.output_dir, args.run)):
-                    line = line.strip().split(',')
-                    taxon_found = line[6]
-                    if taxon == taxon_found:
-                        print taxon_found
-                        print line 
-                        print 'taxon found'
-                    else: 
-                        writer.writerow(line)
+
+            for line in open ('%s/%s_genome_cov.csv' % (args.output_dir, args.run)):
+                line = line.strip().split(',')
+                taxon_found = line[6]
+
+                if taxon_found in contaminants:
+                    print taxon_found 'on contaminants list, removed from further analysis'
+                else: 
+                    writer.writerow(line)
             
 
 #    with open ('%s/%s_genome_cov2.csv' % (args.output_dir, args.run), 'r') as in_file,  open ('%s/%s_genome_cov3.csv' % (args.output_dir, args.run), 'w') as out_file:
