@@ -24,7 +24,7 @@ cd CLARKSCV1.2.5.1/
 ./set_targets.sh  DIR_DB bacteria viruses fungi human
 ./updateTaxonomy.sh 
 gunzip ../example/sample1_meta_R* 
-./classify_metagenome.sh --light -O ../example/sample1_meta_R1.fastq -R ../example/sample1_meta_R1
+./classify_metagenome.sh --light -O ../example/setup/sample1_meta_R1.fastq -R ../example/setup/sample1_meta_R1
 rm -r DIR_DB/Bacteria/
 rm -r DIR_DB/Viruses/
 rm -r DIR_DB/Fungi/
