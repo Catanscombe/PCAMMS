@@ -23,13 +23,13 @@ def main():
     
     check(args)
     
-    #neg_library(args, directory)
-    #results_dir = classify_samples(args, directory)
-    #classification_info(args, results_dir)
+    neg_library(args, directory)
+    results_dir = classify_samples(args, directory)
+    classification_info(args, results_dir)
     predict_genome_cov(args, directory)
-    #auto_assemble(args, directory)
-    #taxon_abundance(args)
-    #remove_work_dir ()
+    auto_assemble(args, directory)
+    taxon_abundance(args)
+    remove_work_dir ()
 
 def check(args):
 # check the input parameters
