@@ -236,7 +236,7 @@ $ python Path/to/PCAMMS/metagenomic.py output/directory runname
 
 Example:
 
-$ python PCAMMS/metagenomic_qc.py PCAMMS/examples/ example_output example_run
+$ python PCAMMS/metagenomic_qc.py PCAMMS/example/ example_output example_run
 
 then
 
