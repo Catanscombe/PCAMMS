@@ -740,7 +740,7 @@ def taxon_abundance(args):
 
         for line in fileinput.input(files=['%s/%s_taxonID_info.csv' % (args.output_dir, args.run)] , inplace = True):
             if fileinput.isfirstline():
-                print 'Taxon_ID,  organism_name, taxonID_number, average_reads, median, lowest_reads, highest_reads, max_sample,  av_cov, median_cov, min_cov, max_cov, max_cov_sample'
+                print 'Taxon_ID,  organism_name, number_of_samples, average_reads, median, lowest_reads, highest_reads, max_sample,  av_cov, median_cov, min_cov, max_cov, max_cov_sample'
             print line,
     os.system('cp %s/*.csv %s/results/' %(args.output_dir, args.output_dir))
     os.system('cp %s/*/*.html %s/results' % (args.output_dir, args.output_dir))   
