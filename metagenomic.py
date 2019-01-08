@@ -420,7 +420,7 @@ def predict_genome_cov(args, directory):
                     line= line.strip()
                     line= line.split(",")
                     try: 
-                        if float(line[4] )>= 0.001:
+                        if float(line[4] )>= 0.0025:
                     
                         
                             writer= csv.writer (output_file , delimiter = ",")
