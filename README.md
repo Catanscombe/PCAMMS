@@ -5,47 +5,47 @@ Pipeline for Classifying and Assembling Microbes from Metagenomic Sequencing
 
 
 Table of Contents
-Description:	                                2
+Description:	                                
 
-    Brief:	                                  2
+    Brief:	                                  
 
-    In-depth:	                                2
+    In-depth:	                                
 
-      Metagenomic_qc.py	                      2
+      Metagenomic_qc.py	                      
 
-      metagenomic.py	                        3
+      metagenomic.py	                        
 
-Installation	                                4
+Installation	                                
 
-Usage:	                                      5
+Usage:	                                      
 
-    metagenomic_qc.py	                        5
+    metagenomic_qc.py	                        
 
-    metagenomic.py	                          5
+    metagenomic.py	                          
 
-    Basic	                                    6
+    Basic	                                    
 
-        metagenomic_qc.py	                    6
+        metagenomic_qc.py	                    
 
-        metagenomic.py	                      6
+        metagenomic.py	                      
 
-    With Negative control	                    7
+    With Negative control	                    
     
-    Multiple negative controls	              7
+    Multiple negative controls	              
 
-    Using a local contamination knowledge	    8
+    Using a local contamination knowledge	    
 
-        Local contamination library	          8
+        Local contamination library	          
 
-        List of taxon to ignore	              9
+        List of taxon to ignore	              
 
-    Customising host read removal	            9
+    Customising host read removal	            
 
-      Not removing host	                      9
+      Not removing host	                      
 
-      Customizing host	                      9
+      Customizing host	                      
 
-    Running the pipeline from a sample list   9
+    Running the pipeline from a sample list   
 
 
 
