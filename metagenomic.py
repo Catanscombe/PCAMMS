@@ -419,7 +419,8 @@ def predict_genome_cov(args, directory):
                 for line in open ("%s/%s/%s_taxon_ID_output_calc.csv" %(args.output_dir, sample, sample) ).readlines():
                     line= line.strip()
                     line= line.split(",")
-                    organism = line[6].strip('(', ')')
+                    organism = line[6].strip('(')
+                    organism = organim.strip('(')
                     try: 
                         if float(line[4] )>= 0.0025:
                     
