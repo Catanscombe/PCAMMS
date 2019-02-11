@@ -419,12 +419,13 @@ def predict_genome_cov(args, directory):
                 for line in open ("%s/%s/%s_taxon_ID_output_calc.csv" %(args.output_dir, sample, sample) ).readlines():
                     line= line.strip()
                     line= line.split(",")
+                    organism = line[6].strip('(', ')')
                     try: 
                         if float(line[4] )>= 0.0025:
                     
                         
                             writer= csv.writer (output_file , delimiter = ",")
-                            writer.writerow ([sample, line[6], line[1], line[2], line[3], line[4], line[5]])
+                            writer.writerow ([sample, organim, line[1], line[2], line[3], line[4], line[5]])
                     except ValueError:
                         pass
     os.system('sort %s/%s_genome_cov.csv > %s/%s_genome_cov2.csv' % (args.output_dir, args.run, args.output_dir, args.run))

@@ -14,19 +14,34 @@ cd ..
 sudo apt-get install bwa 
 
 
+#Download viral database
+
 
 
 #install CLARK
+pip install futures
 wget http://clark.cs.ucr.edu/Download/CLARKV1.2.5.tar.gz
 tar -xzvf CLARKV1.2.5.tar.gz 
 cd CLARKSCV1.2.5.1/
-./install.sh 
-./set_targets.sh  DIR_DB bacteria viruses fungi human
+./install.sh
+cd DIR_DB 
+mkdir Custom 
+cd Custom
+wget https://hive.biochemistry.gwu.edu/prd/rvdb//content/C-RVDBv14.0.fasta
+awk '/^>/{s=++d".fasta"} {print > s}'  C-RVDBv14.0.fasta 
+rm C-RVDBv14.0.fasta
+rm 625226.fasta
+cp ../../../setup.py .	
+sudo python setup.py 
+rm 625226.fasta
+cd ../..
+
+./set_targets.sh  DIR_DB bacteria fungi human custom
 ./updateTaxonomy.sh 
 gunzip ../example/sample1_meta_R* 
-./classify_metagenome.sh --light -O ../example/setup/sample1_meta_R1.fastq -R ../example/setup/sample1_meta_R1
+./classify_metagenome.sh --light -O ../example/setup/1_S1_L001_R1_001.fastq -R ../example/setup/sample1_meta_R1
 rm -r DIR_DB/Bacteria/
-rm -r DIR_DB/Viruses/
+rm -r DIR_DB/Custom/
 rm -r DIR_DB/Fungi/
 rm -r DIR_DB/Human/
 cd taxonomy 
