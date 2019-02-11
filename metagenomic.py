@@ -426,7 +426,7 @@ def predict_genome_cov(args, directory):
                     
                         
                             writer= csv.writer (output_file , delimiter = ",")
-                            writer.writerow ([sample, organim, line[1], line[2], line[3], line[4], line[5]])
+                            writer.writerow ([sample, organism, line[1], line[2], line[3], line[4], line[5]])
                     except ValueError:
                         pass
     os.system('sort %s/%s_genome_cov.csv > %s/%s_genome_cov2.csv' % (args.output_dir, args.run, args.output_dir, args.run))
