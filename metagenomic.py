@@ -420,7 +420,7 @@ def predict_genome_cov(args, directory):
                     line= line.strip()
                     line= line.split(",")
                     organism = line[6].strip('(')
-                    organism = organim.strip('(')
+                    organism = organism.strip('(')
                     try: 
                         if float(line[4] )>= 0.0025:
                     
