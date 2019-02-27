@@ -22,7 +22,7 @@ pip install futures
 pip install futures
 wget http://clark.cs.ucr.edu/Download/CLARKV1.2.5.tar.gz
 tar -xzvf CLARKV1.2.5.tar.gz 
-cd CLARKSCV1.2.5.1/
+cd CLARKSCV1.2.6/
 ./install.sh
 mkdir DIR_DB
 cd DIR_DB 
