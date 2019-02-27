@@ -322,9 +322,9 @@ def predict_genome_cov(args, directory):
             d_genomesize[key] +=value
 
     d_read_length = defaultdict(str)
-    for line in open('%s/multiqc_data/multiqc_general_stats.txt' % (args.output_dir)).readlines():
+    for line in open('%s/multiqc_data/multiqc_fastqc.txt ' % (args.output_dir)).readlines():
         line = line.strip().split('\t')
-        key,value = line[0], line[3]
+        key,value = line[0], line[4]
         d_read_length[key] += value
 
 
@@ -419,14 +419,21 @@ def predict_genome_cov(args, directory):
                 for line in open ("%s/%s/%s_taxon_ID_output_calc.csv" %(args.output_dir, sample, sample) ).readlines():
                     line= line.strip()
                     line= line.split(",")
-                    organism = line[6].strip('(')
-                    organism = organism.strip('(')
+                    organism = line[6]
+                    for char in '()[]/"':
+                        organism= organism.replace(char,'')
+                    #organism =organims.replace('(','')
+                    #organism =organims.replace(')','')
+                    #organism =organims.replace('[','')
+                    #organism =organims.replace('[','')
+
+
                     try: 
                         if float(line[4] )>= 0.0025:
                     
                         
                             writer= csv.writer (output_file , delimiter = ",")
-                            writer.writerow ([sample, organism, line[1], line[2], line[3], line[4], line[5]])
+                            writer.writerow ([sample, d_taxon_organismm, line[1], line[2], line[3], line[4], line[5]])
                     except ValueError:
                         pass
     os.system('sort %s/%s_genome_cov.csv > %s/%s_genome_cov2.csv' % (args.output_dir, args.run, args.output_dir, args.run))
@@ -470,7 +477,7 @@ def auto_assemble(args, directory):
                 line = line.strip()
                 line = line.split("\t")
                 
-                key, value = line[5], line[19]
+                key, value = line[6], line[19]
                 d_read_in_ftp[key] += value
             except IndexError:
                 key, value = 'null', 'null'
@@ -537,35 +544,74 @@ def auto_assemble(args, directory):
                     #writer= csv.writer (f, delimiter = ',')
                     #writer.writerow ([line[0],name, genome_size, line[2], line[5], line[6] , result_ftp_unzip , result_ftp])
 
-        with open ('%s/%s_bwa_index.csv' % (args.output_dir, args.run) , 'a') as bf:
+        with open ('%s/%s_wget_ref.csv' % (args.output_dir, args.run) , 'a') as rf:
             for line in open ('%s/%s_sample_ref.csv' % (args.output_dir, args.run )).readlines():
                 line= line.strip()
                 line = line.split(",")
                 ref = line[6]
                 ref_path = ('%s/refs/%s' %  (directory, ref)) 
-               
-
                 ref_ftp = line[7]
-                if os.path.exists ('%s/refs/%s.pac' % (directory, ref)):
-                    print 'reference indexed'
-                else: 
-                    writer = csv.writer (bf, delimiter = ',')
+
+                if os.path.exists ('%s/refs/%s' % (directory, ref)) or os.path.exists ('%s/refs/%s.gz' % (directory, ref)):
+                    print 'reference already downloaded'
+                else:
+                    writer = csv.writer (rf, delimiter = ',')
                     writer.writerow ([ref_path, ref_ftp])
                     print ref_path
-        for line in open ('%s/%s_bwa_index.csv' % (args.output_dir, args.run) ).readlines():
+        os.system ('sort -u %s/%s_wget_ref.csv -o %s/%s_wget_ref.csv' % ( args.output_dir, args.run, args.output_dir, args.run) )
+
+        for line in open ('%s/%s_wget_ref.csv' % (args.output_dir, args.run) ).readlines():
             line = line.strip().split(',')
-            ref_filename = line[1]
+            ref_filename = line[1]s_taxon_ID_outputs
             
             ref_gunzip = line[0]
             
             ref_gunzip = ref_gunzip + '.gz'
 
-           
-            os.system ('wget -P %s/refs %s ' % (directory, ref_filename))
-            os.system ('gunzip %s' % (ref_gunzip)) 
+            if os.path.exists ('%s/refs/%s' % (directory, ref_filename)) :           
+                os.system ('gunzip -f %s' % (ref_gunzip))
+            
+            else:
+                os.system ('wget -P %s/refs %s ' % (directory, ref_filename))
+                os.system ('gunzip -f %s' % (ref_gunzip)) 
+
+        with open ('%s/%s_bwa_index.csv' % (args.output_dir, args.run) , 'a') as bf:
+            
+            for line in open ('%s/%s_sample_ref.csv' % (args.output_dir, args.run )).readlines():
+                line= line.strip()
+                line = line.split(",")
+                ref = line[6]
+                ref_path = ('%s/refs/%s' %  (directory, ref)) 
+                ref_ftp = line[7]
+
+                if os.path.exists ('%s/refs/%s.pac' % (directory, ref)):
+                    print 'reference indexed'
+                elif os.path.exists ('%s/refs/%s.gz' % (directory, ref))  or os.path.exists ('%s/refs/%s' % (directory, ref)):
+                    writer = csv.writer (bf, delimiter = ',')
+                    writer.writerow ([ref_path, ref_ftp])
+                    print ref_path
+                else:
+                    pass
+        os.system ('sort -u %s/%s_bwa_index.csv -o %s/%s_bwa_index.csv' % ( args.output_dir, args.run, args.output_dir, args.run) )
+
+        with open ('%s/%s_sample_ref_2.csv' % (args.output_dir, args.run) , 'a') as sf:
+            for line in open ('%s/%s_sample_ref.csv' % (args.output_dir, args.run )).readlines():
+                line= line.strip()
+                each_line = line.split(",")
+                ref = each_line[6]
+                ref_path = ('%s/refs/%s' %  (directory, ref)) 
+                 
+                if os.path.exists ('%s/refs/%s.pac' % (directory, ref)):
+                    writer = csv.writer (sf,  escapechar=' ' , quoting = csv.QUOTE_NONE)
+                    writer.writerow([line])
+                else:
+                    pass
+        os.system (" sed -i  's/ *,/,/g' %s/%s_sample_ref_2.csv" % (args.output_dir, args.run))
+        
+        os.system ('mv %s/%s_sample_ref_2.csv %s/%s_sample_ref.csv' % (args.output_dir, args.run, args.output_dir, args.run))
+            
 # this is looping twice .......
         
-
         os.system ('nextflow run %s/nextflow_scripts/bwa_index.nf --list %s/%s_bwa_index.csv --refdir %s/refs' % (directory , args.output_dir , args.run, directory))
         try:
             os.mkdir('%s/reference_mapping' % (args.output_dir))

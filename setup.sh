@@ -16,7 +16,7 @@ sudo apt-get install bwa
 
 #Download viral database
 
-
+pip install futures
 
 #install CLARK
 pip install futures
@@ -24,6 +24,7 @@ wget http://clark.cs.ucr.edu/Download/CLARKV1.2.5.tar.gz
 tar -xzvf CLARKV1.2.5.tar.gz 
 cd CLARKSCV1.2.5.1/
 ./install.sh
+mkdir DIR_DB
 cd DIR_DB 
 mkdir Custom 
 cd Custom
@@ -33,7 +34,7 @@ rm C-RVDBv14.0.fasta
 rm 625226.fasta
 cp ../../../setup.py .	
 sudo python setup.py 
-rm 625226.fasta
+
 cd ../..
 
 ./set_targets.sh  DIR_DB bacteria fungi human custom
@@ -59,7 +60,7 @@ cd ..
 #download human genome 
 mkdir host
 cd host
-wget         ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/*
+wget ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/*
 cat *.gz > human.fasta.gz
 rm !(human.fasta.gz)
 bwa index human.gz
