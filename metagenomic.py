@@ -321,7 +321,7 @@ def predict_genome_cov(args, directory):
             d_genomesize[key] +=value
 
     d_read_length = defaultdict(str)
-    for line in open('%s/multiqc_data/multiqc_fastqc.txt ' % (args.output_dir)).readlines():
+    for line in open('%s/multiqc_data/multiqc_fastqc.txt' % (args.output_dir)).readlines():
         line = line.strip().split('\t')
         key,value = line[0], line[4]
         d_read_length[key] += value
@@ -432,7 +432,7 @@ def predict_genome_cov(args, directory):
                     
                         
                             writer= csv.writer (output_file , delimiter = ",")
-                            writer.writerow ([sample, d_taxon_organismm, line[1], line[2], line[3], line[4], line[5]])
+                            writer.writerow ([sample, organism, line[1], line[2], line[3], line[4], line[5]])
                     except ValueError:
                         pass
     os.system('sort %s/%s_genome_cov.csv > %s/%s_genome_cov2.csv' % (args.output_dir, args.run, args.output_dir, args.run))

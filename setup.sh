@@ -56,6 +56,7 @@ wget https://github.com/marbl/Krona/releases/download/v2.7/KronaTools-2.7.tar
 tar -vxf KronaTools-2.7.tar
 cd KronaTools-2.7/
 sudo ./install.pl
+./updateTaxonomy.sh 
 cd .. 
 
 #download human genome 
