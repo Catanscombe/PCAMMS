@@ -22,7 +22,6 @@ def main():
    
     
     check(args)
-    
     neg_library(args, directory)
     results_dir = classify_samples(args, directory)
     classification_info(args, results_dir)
@@ -155,7 +154,7 @@ def neg_library(args, directory):
         print 'contamination mapping complete, contamination reads removed from further analysis'
 
 def classify_samples(args, directory):
-    Clark_dir = ('%s/CLARKSCV1.2.5.1' % (directory))
+    Clark_dir = ('%s/CLARKSCV1.2.6' % (directory))
     
     for each_file in os.listdir(args.output_dir):
         if each_file.endswith('.fastq'):
@@ -477,7 +476,7 @@ def auto_assemble(args, directory):
                 line = line.strip()
                 line = line.split("\t")
                 
-                key, value = line[6], line[19]
+                key, value = line[5], line[19]
                 d_read_in_ftp[key] += value
             except IndexError:
                 key, value = 'null', 'null'
@@ -562,7 +561,7 @@ def auto_assemble(args, directory):
 
         for line in open ('%s/%s_wget_ref.csv' % (args.output_dir, args.run) ).readlines():
             line = line.strip().split(',')
-            ref_filename = line[1]s_taxon_ID_outputs
+            ref_filename = line[1]
             
             ref_gunzip = line[0]
             
