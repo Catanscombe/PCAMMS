@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #update java
 sudo apt install openjdk-8-jdk
@@ -22,7 +22,7 @@ pip install futures
 pip install futures
 wget http://clark.cs.ucr.edu/Download/CLARKV1.2.5.tar.gz
 tar -xzvf CLARKV1.2.5.tar.gz 
-cd CLARKSCV1.2.6/
+cd CLARKSCV*
 ./install.sh
 mkdir DIR_DB
 cd DIR_DB 
@@ -45,9 +45,10 @@ rm -r DIR_DB/Bacteria/
 rm -r DIR_DB/Custom/
 rm -r DIR_DB/Fungi/
 rm -r DIR_DB/Human/
-cd taxonomy 
-rm !(nodes.dmp)
-cd ../..
+cd DIR_DB/taxonomy 
+shopt -s extglob 
+rm -- !(nodes.dmp)
+cd ../../..
 
 
 #install krona tools
@@ -63,7 +64,7 @@ cd host
 wget ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/*
 cat *.gz > human.fasta.gz
 rm !(human.fasta.gz)
-bwa index human.gz
+bwa index human.fasta.gz
 cd ..
 
 

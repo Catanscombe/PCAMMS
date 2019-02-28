@@ -45,7 +45,9 @@ Usage:
 
       Customizing host	                      
 
-    Running the pipeline from a sample list   
+    Running the pipeline from a sample list  
+
+    Renaming samples from a list 
 
 
 
@@ -330,6 +332,7 @@ Customizing host
 To change the reference used as the host, put a single fasta file containing the host reference in the directory PCAMS/host. Remove all the files associated with the human.gasta.gz. Run bwa index on the new reference. The pipeline will now automatically use this fasta as the host reference. 
 
 Running the pipeline from a sample list
+
 The default of the pipeline is to process all samples in a directory. However using the -s (--sample_list) option you can process a subset of the files in the directory by providing a list of samples to process. The samples need to be given in a csv with each sample on each line, you must list the forward and reverse files for each sample
 e.g 
 sample1_meta_R1.fastq
