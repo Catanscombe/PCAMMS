@@ -6,13 +6,11 @@ import fileinput
   
 def main():
  	parser = argparse.ArgumentParser()
-    parser.add_argument('sample', help = 'sample_ID')
-    parser.add_argument('reference' , help = 'path to reference to be used')
-    parser.add_argument('identifier' , help = 'string to identify this refernce assembly')
-    parser.add_argument('forward' , help = 'path to forward read')
-    parser.add_argument('reverse' , help = 'path to reverse read')
-  
-  
+    parser.add_argument('list', help = 'list containing: sample_ID, ref_ID, ref_file_name.fasta')
+    parser.add_argument('reference directory' , help = 'path to directory containing reference files')
+    parser.add_argument('results_dir' , help = 'path to results directory from metagenomic.py')
+    
+    
     args = parser.parse_args()
     ref_mapping(args)
     stats(args)
