@@ -14,13 +14,10 @@ def main():
     parser.add_argument('-nc' , '--neg_control' , nargs='+' ,  help = 'list the merged negative control fastq files from metagenomic.py you wish to be used as contamination libraries')
     parser.add_argument('-tc' , '--taxon_contaminants' , help = 'provide a list of taxon ID you wish to be ignored in the process')
     parser.add_argument ('-t' , '--threads' , default = '4', help = 'number of threads availble, default is 4')
-    
-
     args = parser.parse_args()
-    
+  
     directory = os.path.dirname(os.path.abspath(sys.argv[0]))
-   
-    
+
     check(args)
     neg_library(args, directory)
     results_dir = classify_samples(args, directory)
@@ -31,9 +28,10 @@ def main():
     remove_work_dir ()
 
 def check(args):
-# check the input parameters
+## check the input parameters
     counter = 0
 
+    # check output directory existst
     if os.path.isdir(args.output_dir):
         print 'output_dir found'
         if not any(name.endswith('.fastq') for name in os.listdir(args.output_dir)):
@@ -43,6 +41,7 @@ def check(args):
         print 'cannot access output_dir, please check path'
         counter = counter +1
 
+    #  if a contaimination fasta is given check it exists and is in fasta format
     if args.contamination:
         if os.path.isfile(args.contamination):
             print 'local contamination library given'
@@ -55,6 +54,7 @@ def check(args):
         else:   
             print 'cannot access contamination library'
 
+    # if a negative control is given check the path and that the file is in fastq format
     if args.neg_control:
         print args.neg_control
         for x in args.neg_control:
@@ -68,18 +68,21 @@ def check(args):
             else:
                 print ('%s connot be found please check path' % (x))
                 counter = counter +1
-     
+    
+    # if a list of taxon to consider contaminants is given check the file exists 
     if args.taxon_contaminants:
         if os.path.isfile(args.taxon_contaminants):
             print ('list of contamination taxon ID provided, taxon listed in %s will be ignored from the analysis' % (args.taxon_contaminants))
 
+    # if more than one file error has been found ,exit the stript
     if counter >= 1:
         print ('problems with %s  input file or directory' %(counter))
         sys.exit()
 
-
-
 def neg_library(args, directory):
+## remove reads mapping to negative control or contamination library if given
+
+    # if a contamination library given, make a contamination directory in the results directory   
     if args.contamination:
         try:
             os.mkdir('%s/contamination' % (args.output_dir))
@@ -93,7 +96,7 @@ def neg_library(args, directory):
             os.mkdir('%s/contamination' % (args.output_dir))
         except OSError:
             pass
-
+        # convert the negative control into a fasta file
         for x in args.neg_control:
             x_split = x.split('/')
             x_file = x_split[-1]
@@ -102,30 +105,36 @@ def neg_library(args, directory):
  
             os.system('seqtk seq -a %s > %s/contamination/%s.fasta' % (x,args.output_dir, x_id))
 
+    # create one fasta to use as a reference to map to  
     if args.contamination or args.neg_control:
         os.system ('cat %s/contamination/*.fasta > %s/contamination/%s_contamination.fasta' % (args.output_dir, args.output_dir, args.run))
         for each_file in os.listdir('%s/contamination' % (args.output_dir)):
             if each_file != ('%s_contamination.fasta' % (args.run)):
                 os.system('rm %s/contamination/%s' % (args.output_dir, each_file))
-
+        # index contamination file
         os.system('bwa index %s/contamination/%s_contamination.fasta' % (args.output_dir, args.run))
         contam = os.path.abspath('%s/contamination/%s_contamination.fasta' % (args.output_dir, args.run))
 
+        #make a directory to store mapping files for contamination mapping
         try:
             os.mkdir('%s/neg_map' % (args.output_dir))
         except OSError:
             pass
+
+        # map to contamination file and create new fastq file with unmapped reads
         if args.threads < 4:
             os.system ('nextflow run %s/nextflow_scripts/neg_map.nf --contamination_path "%s" --outdir "%s/" --threads "%s"' % (directory, contam, args.output_dir, args.threads))
 
         else: 
             os.system ('nextflow run %s/nextflow_scripts/neg_map.nf --contamination_path "%s"  --outdir "%s/" ' % (directory, contam, args.output_dir))
 
+        # make a directory to keep results files in
         try:
             os.mkdir('%s/results' % (args.output_dir))
         except OSError:
             pass
         
+        # create a csv containing the mapping information about the contamination library
         with open ('%s/results/%s_contamination_map_info.csv' % (args.output_dir, args.run), 'a') as f:
             writer = csv.writer (f, delimiter = ',')
             for each_file in os.listdir ('%s' % (args.output_dir)):
@@ -142,6 +151,7 @@ def neg_library(args, directory):
                     pec_neg_map = float(neg_map_reads)/float(merge_reads)
                     writer.writerow([sample, merge_reads, neg_map_reads , pec_neg_map, neg_unmap_reads])
         
+        # sort the csv and add a header
         os.system('sort %s/results/%s_contamination_map_info.csv > %s/results/%s_contamination_map_info2.csv' % (args.output_dir, args.run, args.output_dir, args.run))
         os.system ('mv %s/results/%s_contamination_map_info2.csv  %s/results/%s_contamination_map_info.csv' % (args.output_dir, args.run, args.output_dir, args.run))
         for line in fileinput.input(files=['%s/results/%s_contamination_map_info.csv' % (args.output_dir, args.run)] , inplace = True):
@@ -154,6 +164,7 @@ def neg_library(args, directory):
         print 'contamination mapping complete, contamination reads removed from further analysis'
 
 def classify_samples(args, directory):
+## classify all samples using CLARK-L an dproduce krona plots
     Clark_dir = ('%s/CLARKSCV1.2.6' % (directory))
     
     for each_file in os.listdir(args.output_dir):
@@ -180,13 +191,15 @@ def classify_samples(args, directory):
 
     return results_dir
 
-
 def classification_info(args, results_dir):
+## gather information on average read length and calssification from each sample
+    # make a results directory if it doesnt already exist
     try:
         os.mkdir('%s/results' % (args.output_dir))
     except OSError:
         pass
 
+    # create a dictionary to link each sample with the number of input raw reads
     d_raw = defaultdict(str)
     for line in open ('%s/qc_results/%s_host_map_info.csv' % (results_dir, args.run)).readlines():
         try: 
@@ -197,9 +210,7 @@ def classification_info(args, results_dir):
             key, value = 'null', 'null'
             d_raw[key] += value
 
-    
-
-
+    # create a dictionary to link each sample with the number of reads after host removal
     d_merge = defaultdict(str)
     for line in open ('%s/qc_results/%s_read_info.csv' % (results_dir, args.run)).readlines():
         try:
@@ -211,8 +222,7 @@ def classification_info(args, results_dir):
             key, value = 'null' , 'null'
             d_merge[key] += value
 
-    print d_merge
-
+    # create a dictionary to link each sample with the number of reads mapped to host
     d_map_host = defaultdict(str)
     for line in open ('%s/qc_results/%s_host_map_info.csv' % (results_dir, args.run)).readlines():
         try:
@@ -224,9 +234,9 @@ def classification_info(args, results_dir):
             key, value = 'null' , 'null'
             d_map_host[key] += value
 
- 
+    # gather information if the sample was mapped to a cotamination library 
     if args.contamination or args.neg_control:
-
+        # create a dictionary to link each sample with the number of reads which mapped to the contamination fasta
         d_map_contamination = defaultdict(str)
         for line in open ('%s/results/%s_contamination_map_info.csv' % (results_dir, args.run)).readlines():
             try:
@@ -238,9 +248,7 @@ def classification_info(args, results_dir):
                 key, value = 'null' , 'null'
                 d_map_contamination[key] += value
 
-        print d_map_contamination
-
-
+    # for all samples put information on read numbers and percentages at all stages into a csv
     for fastq in os.listdir(args.output_dir):
         if fastq.endswith('.fastq'):
  
@@ -309,7 +317,9 @@ def classification_info(args, results_dir):
     print ('information document created, information of reads can be found in %s/results/%s.csv ' % (args.output_dir, args.run))
 
 def predict_genome_cov(args, directory):
-# dictionary for genome size
+## use the number of reads, average read length and number of reads classifeid for each identified taxon to predict significance
+    
+    #dictionary for genome size for each taxon ID
     d_genomesize = defaultdict(list)
     for line in open ('%s/resources/assembly_summary_refseq_less.txt' % (directory)).readlines():
         try:
@@ -320,6 +330,7 @@ def predict_genome_cov(args, directory):
             key, value = 'null', 'null'
             d_genomesize[key] +=value
 
+    # create a dictionary linking smaple and average read length
     d_read_length = defaultdict(str)
     for line in open('%s/multiqc_data/multiqc_fastqc.txt' % (args.output_dir)).readlines():
         line = line.strip().split('\t')
@@ -327,7 +338,7 @@ def predict_genome_cov(args, directory):
         d_read_length[key] += value
 
 
-# output taxon Id for each sample
+    # output taxon Id for each sample
     for fastq in os.listdir(args.output_dir):
         if fastq.endswith('.fastq'):
             fastq_split = fastq.split('.')
@@ -342,7 +353,7 @@ def predict_genome_cov(args, directory):
                     writer= csv.writer(f, delimiter=',')
                     writer.writerows ([result])
 
-# write clean taxon ID file
+# write clean taxon ID file for each sample
     for fastq in os.listdir(args.output_dir):
         if fastq.endswith('.fastq'):
             fastq_split = fastq.split('.')
@@ -363,7 +374,6 @@ def predict_genome_cov(args, directory):
                         line[6] = line[6].replace("'", "")
                         size = line[6].replace("]", "")
                         size = size.replace('"', '')
-        #                print ('size %s' %(size))
                     except IndexError:
                         size= 'null'
                     output = line[0], line[1], size , name
@@ -373,7 +383,7 @@ def predict_genome_cov(args, directory):
 
             os.system ('sort -nr -k2 %s/%s/%s_taxon_ID_output.csv > %s/%s/%s_taxon_ID_outputs.csv' %(args.output_dir,  sample, sample, args.output_dir, sample, sample)) 
 
-
+    # create a csv each sample calculating the predicted 'genome coverage' of each taxon identified
     for fastq in os.listdir(args.output_dir):
         if fastq.endswith('.fastq'):
             fastq_split = fastq.split('.')
@@ -409,7 +419,7 @@ def predict_genome_cov(args, directory):
                         writer.writerow ([sample, no_read, genome_size, av_lenth, pec_cov,taxon_ID, organism] )
                 except ValueError:                                                                                                                                                                              
                     pass        
-
+    # create a csv for the whole run containing taxon predicted to have > 0.25% genome coverage
     for fastq in os.listdir(args.output_dir):
         if fastq.endswith('.fastq'):
             fastq_split = fastq.split('.')
@@ -421,12 +431,7 @@ def predict_genome_cov(args, directory):
                     organism = line[6]
                     for char in '()[]/"':
                         organism= organism.replace(char,'')
-                    #organism =organims.replace('(','')
-                    #organism =organims.replace(')','')
-                    #organism =organims.replace('[','')
-                    #organism =organims.replace('[','')
-
-
+                   
                     try: 
                         if float(line[4] )>= 0.0025:
                     
@@ -438,7 +443,7 @@ def predict_genome_cov(args, directory):
     os.system('sort %s/%s_genome_cov.csv > %s/%s_genome_cov2.csv' % (args.output_dir, args.run, args.output_dir, args.run))
     os.system('mv %s/%s_genome_cov2.csv %s/%s_genome_cov.csv' % (args.output_dir, args.run, args.output_dir, args.run)) 
     
-
+    # if a list on taxon ID to ignore was provided, these are removed from the csv, and so no further anlaysis is performed on these taxon IDs
     if args.taxon_contaminants:
         with open ('%s/%s_genome_cov2.csv' % (args.output_dir, args.run), 'a') as out:
             writer = csv.writer(out)
@@ -459,10 +464,8 @@ def predict_genome_cov(args, directory):
                     print ( '%s on contaminants list, removed from further analysis' % (taxon_found))
                 else: 
                     writer.writerow(line)
-            
-
-
-    #print ('estimation of genome coverage for each taxon identified in each samples complete, information can be found in %s/%s_genome_cov.csv' % (args.output_dir, args.run))
+        
+    print ('estimation of genome coverage for each taxon identified in each samples complete, information can be found in %s/%s_genome_cov.csv' % (args.output_dir, args.run))
 
 def auto_assemble(args, directory):
     count = 0

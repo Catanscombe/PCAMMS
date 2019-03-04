@@ -18,7 +18,7 @@ process pear {
 
 	shell:
 	'''
-	fastq-join  !{forward}  !{reverse} -o !{pair_id}
+	fastq-join -x  !{forward}  !{reverse} -o !{pair_id}
 	mv !{pair_id}join !{pair_id}.fastq
 	
 	'''

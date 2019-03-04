@@ -30,10 +30,10 @@ def main():
     remove_work_dir ()
 
 def id_dir( args, directory):
-# check if input and output directorys exists, if optional files are given, checks the file path,  makes sample list
-    
+## check if input and output directorys exists, if optional files are given, checks the file path,  makes sample list
+    #check input dir exists
     counter =0
-#check input dir exists
+
     if not  os.path.exists(args.output_dir):
         try:
             os.mkdir('%s' % (args.output_dir))
@@ -45,7 +45,7 @@ def id_dir( args, directory):
     else:
         print ('Output directory %s already exisits results will be written to this directory' % (args.output_dir))
 
-#check output dir
+    #check output dir
     if  os.path.isdir(args.input_dir):
         print ('input_dir ok')
         if args.sample_list:
@@ -60,7 +60,7 @@ def id_dir( args, directory):
         print ('Error!  %s is not a valid directory, please provide valid directory for input files' % (args.input_dir))
         counter = counter + 1
     
- #check file containing negative control list exists (if given)   
+    #check file containing negative control list exists (if given)   
     if args.neg_list:
         if os.path.isfile(args.neg_list):
             print 'negative control list given'
@@ -68,7 +68,7 @@ def id_dir( args, directory):
             print 'Error! file containing negative control cannot be found, please check path'
             counter = counter + 1
 
-#check negative control files (if given)
+    #check negative control files (if given)
     if args.neg_sample_R1:
         if os.path.isfile(args.neg_sample_R1):
             print 'negative control R1 ok'
@@ -82,18 +82,18 @@ def id_dir( args, directory):
             print 'Error! negative control files cannot be found'
             counter = counter +1 
 
-#will files be renamed?    
+    #will files be renamed?    
     if args.rename == 'yes':
         print 'sample names will be changed in results directory'
 
-#check sample list (if given)
+    #check sample list (if given)
     if args.sample_list:
         if os.path.isfile(args.sample_list):
             print 'sample list given, will process samples on list within input directory'
         else:
             print 'Error! cannot find sample list, please check path'
             counter = counter + 1
-# check sample ID list if given)
+    # check sample ID list if given)
     if args.sample_ID:
         if os.path.isfile(args.sample_ID):
             print 'sample ID list provided, samples will be renamed according to the file'
@@ -107,9 +107,9 @@ def id_dir( args, directory):
    
 
 def rename(args):
-# copy paired end reads to paired directory in output directory and rename where appropriate
+## copy paired end reads to paired directory in output directory and rename where appropriate
 
-# make a dir in results to house paried end reads    
+    # make a dir in results to house paried end reads    
     try:
         os.mkdir('%s/paired' % (args.output_dir))
     except OSError:
@@ -117,7 +117,7 @@ def rename(args):
     
     paired_dir = (args.output_dir + "/paired")
 
-# move and rename negative control if single sample given (-n1/2 or --neg_sample_1/2 command), rewrite sample list to remove this sample from further renaming. 
+    # move and rename negative control if single sample given (-n1/2 or --neg_sample_1/2 command), rewrite sample list to remove this sample from further renaming. 
     
     if args.neg_sample_R1:
         neg_directory = os.path.dirname(os.path.abspath(args.neg_sample_R1))
@@ -150,11 +150,9 @@ def rename(args):
             os.system ('cp %s %s/neg_%s_R2.fastq' % (neg_sample_R2, paired_dir , args.run))
         
         os.system ('mv %s/sample_list_%s2.csv %s/sample_list_%s.csv' % (args.output_dir, args.run, args.output_dir, args.run))   
-        print ('negative controls copied  to %s and renamed' % (paired_dir)) 
-
-            
+        print ('negative controls copied  to %s and renamed' % (paired_dir))     
         
-# rename based on input IDs from user (-id --sample_id)
+    # rename based on input IDs from user (-id --sample_id)
         
     if args.sample_ID: 
         with open ('%s' % (args.sample_ID), 'rb') as f:
@@ -183,7 +181,7 @@ def rename(args):
         
         print ('samples coped to %s and renamed based on sample ID input from %s' % (paired_dir, args.sample_ID))
 
-# or option to automatically rename files to number_runid
+    # or option to automatically rename files to number_runid
     elif args.rename == 'yes':
         for line in open ('%s/sample_list_%s.csv' % (args.output_dir, args.run)):
             line = line.strip()
@@ -212,7 +210,7 @@ def rename(args):
 
         print ('samples copied to %s'  % (paired_dir)) 
 
-
+    # rename negative controls when multiple are given
     if args.neg_list:
         if not args.sample_ID:
             with open ( '%s' % (args.neg_list), 'rb') as f:
@@ -249,17 +247,17 @@ def rename(args):
         
     
 def remove_host(args, directory):   
+## remove reads which map to host genome, default is on and human, host can be changed, see readme file
+    
     if args.remove_host == 'yes':
-
+        # make directory for qc result storage
         try:
             os.mkdir('%s/qc_results' % (args.output_dir))
         except OSError:
             pass
-
-
-
             print directory 
 
+        # refernce map to host genome (bwa mem) then use samtools to get mapping details eg number of reads mapped, create a new fastq file from unmapped reads
         for fasta in os.listdir('%s/host'% (directory)):
             if fasta.endswith('.fasta.gz'):
                 print fasta
@@ -270,7 +268,7 @@ def remove_host(args, directory):
                 else: 
                     os.system ('nextflow run %s/nextflow_scripts/host_map.nf --host_path "%s/%s"  --outdir "%s/paired/" ' % (directory, host_path, fasta, args.output_dir))
 
-
+        # make a csv with details of the host map process
         with open ('%s/qc_results/%s_host_map_info.csv' % (args.output_dir, args.run), 'a') as f:
             writer = csv.writer (f, delimiter = ',')
             for each_file in os.listdir ('%s/paired' % (args.output_dir)):
@@ -291,6 +289,7 @@ def remove_host(args, directory):
                         pec_host_map = 0
                     writer.writerow([sample, raw_reads, host_map_reads , pec_host_map, host_unmap_reads])
 
+        # sort the file by sample and then add headings to columns
         os.system('sort %s/qc_results/%s_host_map_info.csv > %s/qc_results/%s_host_map_info2.csv' % (args.output_dir, args.run, args.output_dir, args.run))
         os.system ('mv %s/qc_results/%s_host_map_info2.csv  %s/qc_results/%s_host_map_info.csv' % (args.output_dir, args.run, args.output_dir, args.run))
         for line in fileinput.input(files=['%s/qc_results/%s_host_map_info.csv' % (args.output_dir, args.run)] , inplace = True):
@@ -302,15 +301,18 @@ def remove_host(args, directory):
 
 
 def merge_reads(args, directory):
- # merge paried end reads, and perform basic qc on merged reads
-
+## merge paried end reads, and perform basic qc on merged reads
+    
+    #use fastq-join to merge paired end reads
     os.system ('nextflow run %s/nextflow_scripts/merge_qc.nf --outdir "%s/" ' % (directory, args.output_dir))
     print 'read pairs merged'
+    # perform fastqc on all merged reads, then perform mulitqc
     os.system ('nextflow run %s/nextflow_scripts/qc.nf --outdir "%s/" ' % (directory,  args.output_dir))
     print 'fastqc performed on merged reads'
     os.system ('multiqc %s/fastqc_output -o %s' %(args.output_dir, args.output_dir))
     print 'multiqc performed on all merged reads'
 
+    # create a csv with read information in, including number of raw forward reads (after host removal and how many reads were sucessfully merged. 
     with open ('%s/%s_read_info.csv' % (args.output_dir, args.run), 'a') as f:
         writer = csv.writer (f, delimiter = ',')
         for each_file in os.listdir ('%s' % (args.output_dir)):
@@ -334,7 +336,9 @@ def merge_reads(args, directory):
         print line, 
 
 def neg_control_class (args, directory):
-
+## If negative control(s) were given, classify these samples using CLARK-L and produce a Krona plot. 
+    
+    #get the directory that contains the clark scripts and database
     Clark_dir = ('%s/CLARKSCV1.2.6' % (directory))
     
     try:
@@ -343,7 +347,8 @@ def neg_control_class (args, directory):
         pass
     os.system ('mv %s/*.html %s/qc_results' % (args.output_dir, args.output_dir))
     os.system ('mv %s/%s_read_info.csv %s/qc_results ' % (args.output_dir, args.run, args.output_dir))
-   
+    
+    #if a single negative control was given, make a negative control directoy and move merged reads into this directory 
     if args.neg_sample_R1: 
         try:
             os.mkdir ('%s/neg_control' % (args.output_dir))
@@ -352,9 +357,7 @@ def neg_control_class (args, directory):
 
         os.system ('mv %s/neg_%s.fastq %s/neg_control/' % (args.output_dir, args.run, args.output_dir))
         
-
-
-        
+    #if a list of  negative controls was given, make a negative control directoy and move merged reads into this directory  
     if args.neg_list:
         try:
             os.mkdir('%s/neg_control' % (args.output_dir))
@@ -365,7 +368,7 @@ def neg_control_class (args, directory):
             Id = split_line[0]
             number = split_line[1]
             os.system ('mv %s/%s_%s.fastq %s/neg_control/' % (args.output_dir, Id, args.run, args.output_dir))
-
+    # If any negative controls were given classify these reads using clark and make a krona plot
     if args.neg_sample_R1 or args.neg_list:
         for files in os.listdir('%s/neg_control' % (args.output_dir)):
             if files.endswith('.fastq'):
@@ -380,11 +383,13 @@ def neg_control_class (args, directory):
                 os.chdir ('%s' % (cwd))
                 os.system  ('ktImportTaxonomy -o  %s/%s.html -m 3 %s/%s_clark_abundance.csv' % ( neg_control_directory, sample, neg_control_directory, sample))
                 
-                        
+                #move results to qc_results directory 
                 os.system (' cp %s/neg_control/*.html %s/qc_results/' % (args.output_dir, args.output_dir))
         print 'classification performed on negative control(s)'
 
+
 def remove_work_dir ():
+## remove the work directory created by next flow
     os.system ('rm -r work')
 main()
 
