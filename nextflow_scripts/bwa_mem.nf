@@ -41,7 +41,7 @@ process bwa_mem {
 	bwa mem -t !{params.threads} !{params.refdir}!{ref}  !{params.path}!{sample_path_R1}  !{params.path}!{sample_path_R2} > !{sample}!{name}.sam
 	samtools view -h -b -S !{sample}!{name}.sam > !{sample}!{name}_.bam
 	samtools sort !{sample}!{name}_.bam > !{sample}!{name}.bam
-	samtools depth !{sample}!{name}.bam | wc -l > !{sample}!{name}.txt
+	samtools depth -Q 30 !{sample}!{name}.bam | wc -l > !{sample}!{name}.txt
 	samtools view -F 0x904 -c !{sample}!{name}.bam > !{sample}!{name}_mapped.txt
 	'''
 

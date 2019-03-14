@@ -25,7 +25,7 @@ def main():
     id_dir (args, directory)
     rename(args)
     remove_host(args, directory)
-    merge_reads(args, directory)
+    qc_reads(args, directory)
     neg_control_class (args, directory)
     remove_work_dir ()
 
@@ -41,7 +41,7 @@ def id_dir( args, directory):
             print ('Error! cannot create results directory %s, please check path' % (args.output_dir))  
             counter = counter + 1
         else:
-            print ('%s counterqreated, results will be written to this directory' % (args.output_dir))
+            print ('%s created, results will be written to this directory' % (args.output_dir))
     else:
         print ('Output directory %s already exisits results will be written to this directory' % (args.output_dir))
 
@@ -263,6 +263,10 @@ def remove_host(args, directory):
                 print fasta
                 host_path = os.path.dirname(os.path.abspath('%s/host/%s'% (directory , fasta)))
                 print host_path
+                try: 
+                    os.mkdir('%s/paired/map_host' % (args.output_dir))
+                except OSError:
+                    pass
                 if args.threads < 4:
                     os.system ('nextflow run %s/nextflow_scripts/host_map.nf --host_path "%s/%s" --outdir "%s/paired/" --threads "%s"' % (directory, host_path, fasta, args.output_dir, args.threads))
                 else: 
@@ -299,40 +303,40 @@ def remove_host(args, directory):
         os.system('cp %s/paired/map_host/*.fastq %s/paired/' % (args.output_dir, args.output_dir))
         os.system('rm -r  %s/paired/map_host' % (args.output_dir))
 
-
-def merge_reads(args, directory):
+def qc_reads(args, directory):
 ## merge paried end reads, and perform basic qc on merged reads
     
-    #use fastq-join to merge paired end reads
-    os.system ('nextflow run %s/nextflow_scripts/merge_qc.nf --outdir "%s/" ' % (directory, args.output_dir))
-    print 'read pairs merged'
+    
     # perform fastqc on all merged reads, then perform mulitqc
-    os.system ('nextflow run %s/nextflow_scripts/qc.nf --outdir "%s/" ' % (directory,  args.output_dir))
-    print 'fastqc performed on merged reads'
+    os.system ('nextflow run %s/nextflow_scripts/qc.nf --outdir "%s/paired/" ' % (directory,  args.output_dir))
+    print 'fastqc performed on  reads'
+    os.system ('mv %s/paired/fastqc_output %s/fastqc_output' % (args.output_dir, args.output_dir    )) 
     os.system ('multiqc %s/fastqc_output -o %s' %(args.output_dir, args.output_dir))
-    print 'multiqc performed on all merged reads'
+    print 'multiqc performed on all  reads'
 
     # create a csv with read information in, including number of raw forward reads (after host removal and how many reads were sucessfully merged. 
     with open ('%s/%s_read_info.csv' % (args.output_dir, args.run), 'a') as f:
         writer = csv.writer (f, delimiter = ',')
-        for each_file in os.listdir ('%s' % (args.output_dir)):
+        for each_file in os.listdir ('%s/paired' % (args.output_dir)):
             if each_file.endswith('.fastq'):
-                each_file_split = each_file.split('.')
-                sample = each_file_split[0]
-                merge_count = 0
-                for line in open ('%s/%s' % (args.output_dir, each_file)).xreadlines( ): merge_count +=1
+                each_file_split = each_file.split('_')
+                sample = each_file_split[:-1]
+                sample ='_'.join(sample)
+                print sample
                 R1_count = 0
                 for line in open ('%s/paired/%s_R1.fastq' % (args.output_dir, sample)).xreadlines(): R1_count +=1
-                merge_reads = merge_count/4
+                R2_count = 0
+                for line in open ('%s/paired/%s_R2.fastq' % (args.output_dir, sample)).xreadlines(): R2_count +=1
                 R1_reads = R1_count/4
-                pec_mearged = float(merge_reads)/float(R1_reads)
-                writer.writerow([sample,  R1_reads, merge_reads, pec_mearged])
+                R2_reads = R2_count/4
+                
+                writer.writerow([sample,  R1_reads, R2_reads])
     os.system ('sort %s/%s_read_info.csv > %s/%s_read_info2.csv' % (args.output_dir, args.run, args.output_dir, args.run))
     os.system (' mv %s/%s_read_info2.csv %s/%s_read_info.csv' % (args.output_dir, args.run, args.output_dir, args.run))          
     #os.system ('gzip %s/paired/*.fastq' % (args.output_dir))
     for line in fileinput.input(files =['%s/%s_read_info.csv' % (args.output_dir, args.run)] , inplace = True):
         if fileinput.isfirstline():
-            print 'sample,  R1_reads, merge_reads, pec_mearged'
+            print 'sample,  R1_reads, R2_reads'
         print line, 
 
 def neg_control_class (args, directory):
@@ -355,7 +359,7 @@ def neg_control_class (args, directory):
         except OSError:
             pass
 
-        os.system ('mv %s/neg_%s.fastq %s/neg_control/' % (args.output_dir, args.run, args.output_dir))
+        os.system ('mv %s/paired/neg_%s*.fastq %s/neg_control/' % (args.output_dir, args.run, args.output_dir))
         
     #if a list of  negative controls was given, make a negative control directoy and move merged reads into this directory  
     if args.neg_list:
@@ -367,17 +371,19 @@ def neg_control_class (args, directory):
             split_line = line.strip().split(',')
             Id = split_line[0]
             number = split_line[1]
-            os.system ('mv %s/%s_%s.fastq %s/neg_control/' % (args.output_dir, Id, args.run, args.output_dir))
+            os.system ('mv %s/paired/%s_%s*.fastq %s/neg_control/' % (args.output_dir, Id, args.run, args.output_dir))
     # If any negative controls were given classify these reads using clark and make a krona plot
     if args.neg_sample_R1 or args.neg_list:
         for files in os.listdir('%s/neg_control' % (args.output_dir)):
-            if files.endswith('.fastq'):
+            if files.endswith('_R1.fastq'):
                 neg_control_directory = os.path.dirname(os.path.abspath('%s/neg_control/%s'% (args.output_dir,  files)))
-                split_files = files.split('.')
-                sample = split_files[0]
+                split_files = files.split('_')
+                sample = split_files[:-1]
+                sample ='_'.join(sample)
+                print sample
                 cwd = os.getcwd()
                 os.chdir ('%s' % (Clark_dir))
-                os.system ( './classify_metagenome.sh  --light -O %s/%s  -n %s -R %s/%s_clark' % ( neg_control_directory, files, args.threads , neg_control_directory, sample))
+                os.system ( './classify_metagenome.sh  --light -P  %s/%s_R1.fastq %s/%s_R2.fastq  -n %s -R %s/%s_clark' % ( neg_control_directory, sample, neg_control_directory, sample, args.threads , neg_control_directory, sample))
                 os.system ('./estimate_abundance.sh --krona -F %s/%s_clark.csv -D DIR_DB > %s/%s_clark_abundance.csv' % ( neg_control_directory, sample, neg_control_directory,  sample))
                 os.system ('mv results.krn %s/%s_clark_abundance.csv' % ( neg_control_directory,  sample ))
                 os.chdir ('%s' % (cwd))

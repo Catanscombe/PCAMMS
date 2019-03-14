@@ -11,7 +11,7 @@ def main():
     parser.add_argument('output_dir', help ='output directory')
     parser.add_argument( 'run',  help = 'run description')
     parser.add_argument ('-c' , '--contamination' , help = 'path to fasta containing local contamination library')
-    parser.add_argument('-nc' , '--neg_control' , nargs='+' ,  help = 'list the merged negative control fastq files from metagenomic.py you wish to be used as contamination libraries')
+    parser.add_argument('-nc' , '--neg_control' , nargs='+' ,  help = 'list the R1 reads of negative controls fastq files from metagenomic.py you wish to be used as contamination libraries')
     parser.add_argument('-tc' , '--taxon_contaminants' , help = 'provide a list of taxon ID you wish to be ignored in the process')
     parser.add_argument ('-t' , '--threads' , default = '4', help = 'number of threads availble, default is 4')
     args = parser.parse_args()
@@ -34,7 +34,8 @@ def check(args):
     # check output directory existst
     if os.path.isdir(args.output_dir):
         print 'output_dir found'
-        if not any(name.endswith('.fastq') for name in os.listdir(args.output_dir)):
+
+        if not any(name.endswith('.fastq') for name in os.listdir( '%s/paired' % (args.output_dir))):
             print 'directory has no fastq files, please check path'
             counter = counter +1
     else:
@@ -101,9 +102,11 @@ def neg_library(args, directory):
             x_split = x.split('/')
             x_file = x_split[-1]
             x_file_split = x_file.split('.')
-            x_id = x_file_split[0]
- 
-            os.system('seqtk seq -a %s > %s/contamination/%s.fasta' % (x,args.output_dir, x_id))
+            x_R1 = x_file_split[0]
+            print x_R1
+            x_id = x_R1.replace('_R1', '')
+            print x_id
+            os.system('seqtk seq -a %s/neg_control/%s_R1.fastq %s/neg_control/%s_R2.fastq > %s/contamination/%s.fasta' % (args.output_dir, x_id, args.output_dir, x_id,args.output_dir, x_id))
 
     # create one fasta to use as a reference to map to  
     if args.contamination or args.neg_control:
@@ -123,10 +126,10 @@ def neg_library(args, directory):
 
         # map to contamination file and create new fastq file with unmapped reads
         if args.threads < 4:
-            os.system ('nextflow run %s/nextflow_scripts/neg_map.nf --contamination_path "%s" --outdir "%s/" --threads "%s"' % (directory, contam, args.output_dir, args.threads))
+            os.system ('nextflow run %s/nextflow_scripts/neg_map.nf --contamination_path "%s/" --outdir "%s/paired/" --threads "%s"' % (directory, contam, args.output_dir, args.threads))
 
         else: 
-            os.system ('nextflow run %s/nextflow_scripts/neg_map.nf --contamination_path "%s"  --outdir "%s/" ' % (directory, contam, args.output_dir))
+            os.system ('nextflow run %s/nextflow_scripts/neg_map.nf --contamination_path "%s"  --outdir "%s/paired/" ' % (directory, contam, args.output_dir))
 
         # make a directory to keep results files in
         try:
@@ -138,39 +141,43 @@ def neg_library(args, directory):
         with open ('%s/results/%s_contamination_map_info.csv' % (args.output_dir, args.run), 'a') as f:
             writer = csv.writer (f, delimiter = ',')
             for each_file in os.listdir ('%s' % (args.output_dir)):
-                if each_file.endswith('.fastq'):
+                if each_file.endswith('_R1.fastq'):
                     each_file_split = each_file.split('.')
                     sample = each_file_split[0]
+                    sample = sample.replace('_R1', '')
                     merge_count = 0
-                    for line in open ('%s/%s' % (args.output_dir, each_file)).xreadlines( ): merge_count +=1
+                    for line in open ('%s/paired/%s' % (args.output_dir, each_file)).xreadlines( ): merge_count +=1
                     neg_unmap_count = 0
-                    for line in open ('%s/neg_map/%s.fastq' % (args.output_dir, sample)).xreadlines(): neg_unmap_count +=1
+
+                    for line in open ('%s/paired/neg_map/%s_R1.fastq' % (args.output_dir, sample)).xreadlines(): neg_unmap_count +=1
                     merge_reads = merge_count/4
                     neg_unmap_reads = neg_unmap_count/4
                     neg_map_reads =  merge_reads - neg_unmap_reads
                     pec_neg_map = float(neg_map_reads)/float(merge_reads)
                     writer.writerow([sample, merge_reads, neg_map_reads , pec_neg_map, neg_unmap_reads])
-        
+               
         # sort the csv and add a header
         os.system('sort %s/results/%s_contamination_map_info.csv > %s/results/%s_contamination_map_info2.csv' % (args.output_dir, args.run, args.output_dir, args.run))
         os.system ('mv %s/results/%s_contamination_map_info2.csv  %s/results/%s_contamination_map_info.csv' % (args.output_dir, args.run, args.output_dir, args.run))
         for line in fileinput.input(files=['%s/results/%s_contamination_map_info.csv' % (args.output_dir, args.run)] , inplace = True):
             if fileinput.isfirstline():
                 print 'sample,input_reads,contamination_map_reads,pec_contamination_map,output_reads'
-            print line,
-        os.system('cp %s/neg_map/*.fastq %s/' % (args.output_dir, args.output_dir))
-        os.system('rm -r  %s/neg_map' % (args.output_dir))
+            print line, 
+        os.system('cp %s/paired/neg_map/*.fastq %s/' % (args.output_dir, args.output_dir))
+        os.system('rm -r  %s/paired/neg_map' % (args.output_dir))
 
         print 'contamination mapping complete, contamination reads removed from further analysis'
 
 def classify_samples(args, directory):
 ## classify all samples using CLARK-L an dproduce krona plots
-    Clark_dir = ('%s/CLARKSCV1.2.6' % (directory))
+    Clark_dir = ('%s/CLARKSCV1.2.5.1' % (directory))
     
     for each_file in os.listdir(args.output_dir):
-        if each_file.endswith('.fastq'):
+        if each_file.endswith('_R1.fastq'):
             each_file_split = each_file.split('.')
             sample = each_file_split[0]
+            sample = sample.replace('_R1', '')
+            print sample
             try:
                 os.mkdir('%s/%s' % ( args.output_dir, sample))
             except OSError:
@@ -179,7 +186,7 @@ def classify_samples(args, directory):
             results_dir = os.path.dirname(os.path.abspath('%s/%s' % (args.output_dir, sample)))
             print results_dir
             os.chdir('%s' % (Clark_dir))
-            os.system ( './classify_metagenome.sh  --light -O %s/%s.fastq  -n %s -R %s/%s/%s_clark' % ( results_dir, sample, args.threads , results_dir, sample, sample))
+            os.system ( './classify_metagenome.sh  --light -P %s/%s_R1.fastq %s/%s_R2.fastq -n %s -R %s/%s/%s_clark' % ( results_dir, sample, results_dir, sample, args.threads , results_dir, sample, sample))
             os.system ('./estimate_abundance.sh --krona -F %s/%s/%s_clark.csv -D DIR_DB' % ( results_dir, sample, sample))
             os.system ('mv results.krn %s/%s/%s_clark_abundance.csv' % (results_dir, sample, sample))
             os.chdir ('%s' % (cwd))
@@ -201,38 +208,41 @@ def classification_info(args, results_dir):
 
     # create a dictionary to link each sample with the number of input raw reads
     d_raw = defaultdict(str)
-    for line in open ('%s/qc_results/%s_host_map_info.csv' % (results_dir, args.run)).readlines():
-        try: 
-            line = line.strip().split(',')
-            key,value = line[0] , line[1]
-            d_raw[key] += value
-        except IndexError:
-            key, value = 'null', 'null'
-            d_raw[key] += value
+    if os.path.isfile('%s/qc_results/%s_host_map_info.csv' % (results_dir, args.run)):
+        for line in open ('%s/qc_results/%s_host_map_info.csv' % (results_dir, args.run)).readlines():
+            try: 
+                line = line.strip().split(',')
+                key,value = line[0] , line[1]
+                d_raw[key] += value
+            except IndexError:
+                key, value = 'null', 'null'
+                d_raw[key] += value
+    else:
+        for line in open ('%s/qc_results/%s_read_info.csv' % (results_dir, args.run)).readlines():
+            try: 
+                line = line.strip().split(',')
+                key,value = line[0] , line[1]
+                d_raw[key] += value
+            except IndexError:
+                key, value = 'null', 'null'
+                d_raw[key] += value
 
-    # create a dictionary to link each sample with the number of reads after host removal
-    d_merge = defaultdict(str)
-    for line in open ('%s/qc_results/%s_read_info.csv' % (results_dir, args.run)).readlines():
-        try:
-            line = line.strip().split(',')
-            print line[0]
-            key, value = line[0], line[2]
-            d_merge[key] += value
-        except IndexError:
-            key, value = 'null' , 'null'
-            d_merge[key] += value
-
+        
     # create a dictionary to link each sample with the number of reads mapped to host
     d_map_host = defaultdict(str)
-    for line in open ('%s/qc_results/%s_host_map_info.csv' % (results_dir, args.run)).readlines():
-        try:
-            line = line.strip().split(',')
-            print line[0]
-            key, value = line[0], line[2]
-            d_map_host[key] += value
-        except IndexError:
-            key, value = 'null' , 'null'
-            d_map_host[key] += value
+    if os.path.isfile('%s/qc_results/%s_host_map_info.csv' % (results_dir, args.run)):
+        for line in open ('%s/qc_results/%s_host_map_info.csv' % (results_dir, args.run)).readlines():
+            try:
+                line = line.strip().split(',')
+                print line[0]
+                key, value = line[0], line[2]
+                d_map_host[key] += value
+            except IndexError:
+                key, value = 'null' , 'null'
+                d_map_host[key] += value
+    else:
+        key, value = 'null' , 'null'
+        d_map_host[key] += value
 
     # gather information if the sample was mapped to a cotamination library 
     if args.contamination or args.neg_control:
@@ -250,37 +260,44 @@ def classification_info(args, results_dir):
 
     # for all samples put information on read numbers and percentages at all stages into a csv
     for fastq in os.listdir(args.output_dir):
-        if fastq.endswith('.fastq'):
+        if fastq.endswith('_R1.fastq'):
+
  
             fastq_split = fastq.split('.')
             sample = fastq_split[0]
+            sample = sample.replace('_R1', '')
 
             raw_reads= int(d_raw[sample])
-            merge_reads = int(d_merge[sample])            
-            host_map = int(d_map_host[sample])
+           
+            try:
+                host_map = int(d_map_host[sample])
+            except ValueError:
+                host_map = 0
+
             host_unmap = raw_reads - host_map
             if host_map > 0 and raw_reads > 0: 
                 host_pec = float(host_map)/float(raw_reads)
             else: 
                 host_pec  = 0
 
-            if merge_reads > 0 and host_unmap > 0:
-                merge_pec = float(merge_reads)/float(host_unmap)
-            else:
-                merge_pec = 0
-
+            
             if args.contamination or args.neg_control:
-                contamination_map = int(d_map_contamination[sample])
+                try:
+                    contamination_map = int(d_map_contamination[sample])
+                except ValueError:
+                    contamination_map = 0    
                 contamination_unmap = host_unmap - contamination_map
                 if contamination_map > 0 and host_map > 0:
                     contamination_pec = float(contamination_map)/float(host_unmap)
                 else:
                     contamination_pec = 0 
 
+            try:
+                unclassified = open('%s/%s/%s_clark.csv' % (results_dir,  sample, sample)).read()
+                unclassified_count = unclassified.count('NA')                                   
+            except IOError:
+                unclassified_count = 'all'
 
-            unclassified = open('%s/%s/%s_clark.csv' % (results_dir,  sample, sample)).read()
-            unclassified_count = unclassified.count('NA')                                   
-            
             if args.contamination or args.neg_control:
                 classification = int(contamination_unmap) - int(unclassified_count)
                 if unclassified_count > 0 and contamination_map > 0:
@@ -297,21 +314,21 @@ def classification_info(args, results_dir):
 
                 with open ('%s/results/%s.csv' % (results_dir, args.run), 'a') as f:
                     writer = csv.writer(f, delimiter = ',')
-                    writer.writerow ([sample, raw_reads, host_map, host_pec,  host_unmap, merge_reads, merge_pec, contamination_map, contamination_unmap, contamination_pec, classification, classification_pec])
+                    writer.writerow ([sample, raw_reads, host_map, host_pec,  host_unmap,  contamination_map, contamination_unmap, contamination_pec, classification, classification_pec])
 
             else:
                 with open ('%s/results/%s.csv' % (results_dir, args.run), 'a') as f:
                     writer = csv.writer(f, delimiter = ',')
-                    writer.writerow ([sample, raw_reads, host_map, host_pec,  host_unmap, merge_reads, merge_pec, classification, classification_pec])
+                    writer.writerow ([sample, raw_reads, host_map, host_pec,  host_unmap,  classification, classification_pec])
     if args.contamination or args.neg_control:
         for line in fileinput.input(files=['%s/results/%s.csv' % (results_dir, args.run)] , inplace = True):
             if fileinput.isfirstline():
-                print 'sample, raw_reads, host_map, host_pec,  host_unmap, merge_reads, merge_pec, contamination_map, contamination_unmap, contamination_pec, classification, classification_pec'
+                print 'sample, raw_reads, host_map, host_pec,  host_unmap,  contamination_map, contamination_unmap, contamination_pec, classification, classification_pec'
             print line,
     else:
         for line in fileinput.input(files=['%s/results/%s.csv' % (results_dir, args.run)] , inplace = True):
             if fileinput.isfirstline():
-                print 'sample, raw_reads, host_map, host_pec,  host_unmap, merge_reads, merge_pec, classification, classification_pec'
+                print 'sample, raw_reads, host_map, host_pec,  host_unmap,  classification, classification_pec'
             print line,
 
     print ('information document created, information of reads can be found in %s/results/%s.csv ' % (args.output_dir, args.run))
@@ -319,6 +336,7 @@ def classification_info(args, results_dir):
 def predict_genome_cov(args, directory):
 ## use the number of reads, average read length and number of reads classifeid for each identified taxon to predict significance
     
+
     #dictionary for genome size for each taxon ID
     d_genomesize = defaultdict(list)
     for line in open ('%s/resources/assembly_summary_refseq_less.txt' % (directory)).readlines():
@@ -340,9 +358,10 @@ def predict_genome_cov(args, directory):
 
     # output taxon Id for each sample
     for fastq in os.listdir(args.output_dir):
-        if fastq.endswith('.fastq'):
+        if fastq.endswith('_R1.fastq'):
             fastq_split = fastq.split('.')
             sample = fastq_split[0]
+            sample = sample.replace('_R1', '')
 
             with open ("%s/%s/%s_taxon_ID.csv" %(args.output_dir, sample, sample)  ,  'w' )as f:
                 for line in open ("%s/%s/%s_clark_abundance.csv" % (args.output_dir, sample, sample)):
@@ -355,9 +374,10 @@ def predict_genome_cov(args, directory):
 
 # write clean taxon ID file for each sample
     for fastq in os.listdir(args.output_dir):
-        if fastq.endswith('.fastq'):
+        if fastq.endswith('_R1.fastq'):
             fastq_split = fastq.split('.')
             sample = fastq_split[0]
+            sample = sample.replace('_R1', '')
             with open("%s/%s/%s_taxon_ID_output.csv" %(args.output_dir,  sample, sample) ,"w") as output_file:
                 for line in  open("%s/%s/%s_taxon_ID.csv" %(args.output_dir, sample, sample) ,"rb") :
                     line= line.strip()
@@ -385,11 +405,13 @@ def predict_genome_cov(args, directory):
 
     # create a csv each sample calculating the predicted 'genome coverage' of each taxon identified
     for fastq in os.listdir(args.output_dir):
-        if fastq.endswith('.fastq'):
+        if fastq.endswith('_R1.fastq'):
             fastq_split = fastq.split('.')
-            sample = fastq_split[0]
+            samples = fastq_split[0]
+            sample = samples.replace('_R1', '')
+
             with open("%s/%s/%s_taxon_ID_output_calc.csv" %(args.output_dir, sample, sample) ,"w") as output_file:
-                av_length = d_read_length[sample]
+                av_length = d_read_length[samples]
                 try:
                     av_lenth= float(av_length)
                     print ('av_len = %s ' % (av_length)) 
@@ -421,9 +443,10 @@ def predict_genome_cov(args, directory):
                     pass        
     # create a csv for the whole run containing taxon predicted to have > 0.25% genome coverage
     for fastq in os.listdir(args.output_dir):
-        if fastq.endswith('.fastq'):
+        if fastq.endswith('_R1.fastq'):
             fastq_split = fastq.split('.')
             sample = fastq_split[0]
+            sample = sample.replace('_R1', '')
             with open ('%s/%s_genome_cov.csv' % (args.output_dir , args.run), 'a') as output_file:
                 for line in open ("%s/%s/%s_taxon_ID_output_calc.csv" %(args.output_dir, sample, sample) ).readlines():
                     line= line.strip()
@@ -612,7 +635,7 @@ def auto_assemble(args, directory):
         
         os.system ('mv %s/%s_sample_ref_2.csv %s/%s_sample_ref.csv' % (args.output_dir, args.run, args.output_dir, args.run))
             
-# this is looping twice .......
+
         
         os.system ('nextflow run %s/nextflow_scripts/bwa_index.nf --list %s/%s_bwa_index.csv --refdir %s/refs' % (directory , args.output_dir , args.run, directory))
         try:
@@ -638,7 +661,8 @@ def auto_assemble(args, directory):
 
                 read_count = 0
                 for line in open ('%s/paired/%s_R1.fastq' % (args.output_dir, sample)).xreadlines( ): read_count +=1
-                reads = read_count/4
+                reads = read_count/2
+
 
                 for line in open ('%s/reference_mapping/%s%s.txt' % (args.output_dir, sample, organism)):
                     line = line.strip()
@@ -793,7 +817,9 @@ def taxon_abundance(args):
                 print 'Taxon_ID,  organism_name, number_of_samples, average_reads, median, lowest_reads, highest_reads, max_sample,  av_cov, median_cov, min_cov, max_cov, max_cov_sample'
             print line,
     os.system('cp %s/*.csv %s/results/' %(args.output_dir, args.output_dir))
-    os.system('cp %s/*/*.html %s/results' % (args.output_dir, args.output_dir))   
+    os.system('cp %s/*/*.html %s/results' % (args.output_dir, args.output_dir))
+    os.mkdir ('%s/results/fastqc' % (args.output_dir))
+    os.system ('mv %s/results/*fastqc* %s/results/fastqc'  % (args.output_dir, args.output_dir))   
 
     print ('report on frequency at which taxon IDs were identified in the run complete, see %s/%s_taxonID_info.csv ' % (args.output_dir, args.run))    
 

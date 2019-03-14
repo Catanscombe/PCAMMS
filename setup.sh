@@ -20,22 +20,17 @@ pip install futures
 
 #install CLARK
 pip install futures
+easy_install future
 wget http://clark.cs.ucr.edu/Download/CLARKV1.2.5.tar.gz
 tar -xzvf CLARKV1.2.5.tar.gz 
 cd CLARKSCV*
 ./install.sh
 mkdir DIR_DB
 cd DIR_DB 
-mkdir Custom 
-cd Custom
-wget https://hive.biochemistry.gwu.edu/prd/rvdb//content/C-RVDBv14.0.fasta
-awk '/^>/{s=++d".fasta"} {print > s}'  C-RVDBv14.0.fasta 
-rm C-RVDBv14.0.fasta
-rm 625226.fasta
-cp ../../../setup.py .	
-sudo python setup.py 
+cp ../../resources/C-VRDB.tar.gz .
+tar -xzvf C-VRDB.tar.gz
 
-cd ../..
+cd ../
 
 ./set_targets.sh  DIR_DB bacteria fungi human custom
 ./updateTaxonomy.sh 
