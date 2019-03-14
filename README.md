@@ -2,62 +2,38 @@
 Pipeline for Classifying and Assembling Microbes from Metagenomic Sequencing 
 
 ***THIS PIPELINE IS STILL IN DEVELOPMENT***
-
-
 Table of Contents
-Description:	                                
-
-    Brief:	                                  
-
-    In-depth:	                                
-
-      Metagenomic_qc.py	                      
-
-      metagenomic.py	                        
-
-Installation	                                
-
-Usage:	                                      
-
-    metagenomic_qc.py	                        
-
-    metagenomic.py	                          
-
-    Basic	                                    
-
-        metagenomic_qc.py	                    
-
-        metagenomic.py	                      
-
-    With Negative control	                    
-    
-    Multiple negative controls	              
-
-    Using a local contamination knowledge	    
-
-        Local contamination library	          
-
-        List of taxon to ignore	              
-
-    Customising host read removal	            
-
-      Not removing host	                      
-
-      Customizing host	                      
-
-    Running the pipeline from a sample list  
-
-    Renaming samples from a list 
-
+Description:  2
+Brief:  2
+In-depth: 2
+Metagenomic_qc.py 2
+metagenomic.py  3
+Installation  5
+Usage:  6
+metagenomic_qc.py 6
+metagenomic.py  6
+Basic 7
+metagenomic_qc.py 7
+metagenomic.py  7
+With Negative control 8
+Multiple negative controls  8
+Using a local contamination knowledge 9
+Local contamination library 9
+List of taxon to ignore 9
+Customising host read removal 10
+Not removing host 10
+Customizing host  10
+Running the pipeline from a sample list 10
+Renaming samples based on a list  10
 
 
  
 Description:
 
 Brief:
-This pipeline is for initial analysis of metagenomic samples sequenced on Illumina platforms. It was originally designed for detection of pathogens in sterile site infections sequenced on the Miseq. The pipeline consists of two scripts, the first (metagenomic_qc.py)  prepares the reads for analysis (including merging reads, removing host and performing basic QC). The second (metagenomic.py) performs classification on the reads using CLARK in light mode, then downloads the representative reference file for each species taxon ID estimated to be significant, and performs reference assembly on the unpaired reads against this reference.
+This pipeline is for initial analysis of metagenomic samples sequenced on Illumina platforms. It was originally designed for detection of pathogens in sterile site infections sequenced on the Miseq. The pipeline consists of two scripts, the first (metagenomic_qc.py)  prepares the reads for analysis (including merging reads, removing host and assessing  basic QC). The second (metagenomic.py) performs classification on the reads using CLARK in light mode, then downloads the representative reference file for each species taxon ID estimated to be significant, and performs reference assembly on the unpaired reads against this reference.
 
-This pipeline is intended to be a first pass analysis to narrow the pool of possible microbes in a sample. It has been designed to be high sensitivity but low sensitivity and results should be reviewed and edited using local knowledge.  
+This pipeline is intended to be a first pass analysis to narrow the pool of possible microbes in a sample. It has been designed to be highly sensitivity but low specificity and results should be reviewed and edited using local knowledge.  This pipeline does not perform QC on reads (eg trimming), Fastqc is performed to encourage researchers to visualise data quality and consider this when analysing results. 
 
 Input:
 Raw paired-end reads from Illumina in a single directory 
@@ -76,16 +52,14 @@ Raw files remain unchanged.
 
 3) Host reads will be removed by mapping against the host reference, default is human. These fastq files replace the raw files in the output directory. Host can be changed see below. Option to not map against host.  
 
-4) Paired-end reads will be merged using fastq-join. The paired-end reads will be stored in a directory within the project folder
+4) Basic Quality control assessment will be performed using Fastqc, then produce a combined report using Mulitqc. 
 
-5) Basic Quality control will be performed using Fastqc on merged reads, then produce a combined report using Mulitqc. 
-
-6) If negatvie controls are given these will be classified using CLARK-L (optional)
+6) If negative control(s) are given these will be classified using CLARK-L (optional)
 
 7) A directory called qc_results will be created which will contain:
 * a html report containing the multiqc results
 * a csv file containing information on the host mapping process (input reads, number of reads mapping to host, % reads mapped to host, and the output reads) 
-* a csv containing read information (number of parie-end reads, number of merged reads and the % of reads which were sucessfully merged)
+* a csv containing read information (number of paired-end reads)
 *  html(s) of a Krona plot of the results of classifying the negative (if performed) 
 
 metagenomic.py
@@ -94,7 +68,7 @@ metagenomic.py
 
 2) The reads will be classified using CLARK in light mode. 
 
-3) The significance of classified hits will then be assessed for each species identified in a sample. Using the average read length, size of the genome and the number of reads classified. 
+3) The significance of classified hits will then be assessed for each species identified in a sample. Using the average R1 read length, size of the genome and the number of reads classified. 
 (av_readlength x number of classified hits)/genome size) if this is greater than 0.0025 (0.25%) then the hit is considered significant.
 This balances not missing hits, but also not performing assembly on very low quality hits. 
 This cut off can be altered in the metagenomic.py if required (line 423) 
@@ -107,13 +81,13 @@ This cut off can be altered in the metagenomic.py if required (line 423)
 
 7) A directory called 'results' will be created in the output directory and will contain:
 • runame.csv: 
-o csv file containing basic run information for each sample in the run(number of raw reads, number of reads mapping to host, percentage of reads mapping to host, number of reads not mapping to host , number of reads after paired-end merging, % of reads that were merged , number of reads which were classified, % of reads which were classified)
+o csv file containing basic run information for each sample in the run(number of raw reads, number of reads mapping to host, percentage of reads mapping to host, number of reads not mapping to host , number of reads which were classified, % of reads which were classified)
 • runame_genome_cov.csv:
 o csv containing the estimated genome coverage based on calculation described above
 • runame_referene_mapping.csv: 
 o csv file with the mapping information for each sample and each microbe identified (organism name, organism genome size, bases in the genome covered in the reference assembly, % of genome covered, number of reads mapped, % of the total reads mapped, taxon ID of the organism, how many reads were classified as that taxon ID, the reference used in the assembly)
 • runname_sample_ref.csv: 
-o contains full path to the reference used
+o contains full path to the references downloaded
 • sample.html : 
 o Krona plot of results of classification. 
 
@@ -238,7 +212,7 @@ $ python Path/to/PCAMMS/metagenomic.py output/directory runname
 
 Example:
 
-$ python PCAMMS/metagenomic_qc.py PCAMMS/example_output/ example_output example_run
+$ python PCAMMS/metagenomic_qc.py PCAMMS/example/ example_output example_run
 
 then
 
@@ -297,7 +271,7 @@ aired/
 $ python PCAMMS/metagenomic.py example_neg_list/ neg_list -nc example_neg_list/neg_control/water-neg_neg_list.fastq example_neg_list/neg_control/PCR-neg_neg_list.fastq 
 
 Using a local contamination knowledge 
-These options allow you to include knowledge of contamination that you frequenctly encounter eg kit contaminants. This can be included in two ways, either in the form of a local contamination library in fasta format, or by proving a list of taxon ID you wish the pipeline to ignore. 
+These options allow you to include knowledge of contamination that you frequently encounter eg kit contaminants. This can be included in two ways, either in the form of a local contamination library in fasta format, or by proving a list of taxon ID you wish the pipeline to ignore. 
 
 Local contamination library 
 
@@ -332,7 +306,6 @@ Customizing host
 To change the reference used as the host, put a single fasta file containing the host reference in the directory PCAMS/host. Remove all the files associated with the human.gasta.gz. Run bwa index on the new reference. The pipeline will now automatically use this fasta as the host reference. 
 
 Running the pipeline from a sample list
-
 The default of the pipeline is to process all samples in a directory. However using the -s (--sample_list) option you can process a subset of the files in the directory by providing a list of samples to process. The samples need to be given in a csv with each sample on each line, you must list the forward and reverse files for each sample
 e.g 
 sample1_meta_R1.fastq
@@ -357,3 +330,5 @@ this will rename 1_S1_L001_R1_001.fastq as samplea_runname_R1.fastq
 
 Example
 $ python PCAMMS/metagenomic_qc.py PCAMMS/example/example_neg_list/ sample_ID example_sample_ID -id PCAMMS/example/example_neg_list/sample_ID.csv
+
+
