@@ -3,12 +3,7 @@
 #update java
 sudo apt install openjdk-8-jdk
 
-#install fastq-join
-git clone https://github.com/brwnj/fastq-join
-cd fastq-join
-make
-sudo mv fastq-join /usr/local/bin/
-cd ..
+
 
 #install bwa 
 sudo apt-get install bwa 
@@ -27,7 +22,8 @@ cd CLARKSCV*
 ./install.sh
 mkdir DIR_DB
 cd DIR_DB 
-cp ../../resources/C-VRDB.tar.gz .
+cp ../../resources/xa* .
+cat xa* > C-VRDB.tar.gz
 tar -xzvf C-VRDB.tar.gz
 
 cd ../
