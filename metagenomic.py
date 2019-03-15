@@ -145,16 +145,17 @@ def neg_library(args, directory):
                     each_file_split = each_file.split('.')
                     sample = each_file_split[0]
                     sample = sample.replace('_R1', '')
-                    merge_count = 0
-                    for line in open ('%s/paired/%s' % (args.output_dir, each_file)).xreadlines( ): merge_count +=1
+                    
+                    raw_count = 0
+                    for line in open ('%s/paired/%s' % (args.output_dir, each_file)).xreadlines( ): raw_count +=1
                     neg_unmap_count = 0
 
                     for line in open ('%s/paired/neg_map/%s_R1.fastq' % (args.output_dir, sample)).xreadlines(): neg_unmap_count +=1
-                    merge_reads = merge_count/4
+                    raw_reads = raw_count/4
                     neg_unmap_reads = neg_unmap_count/4
-                    neg_map_reads =  merge_reads - neg_unmap_reads
-                    pec_neg_map = float(neg_map_reads)/float(merge_reads)
-                    writer.writerow([sample, merge_reads, neg_map_reads , pec_neg_map, neg_unmap_reads])
+                    neg_map_reads =  raw_reads - neg_unmap_reads
+                    pec_neg_map = float(neg_map_reads)/float(raw_reads)
+                    writer.writerow([sample, raw_reads, neg_map_reads , pec_neg_map, neg_unmap_reads])
                
         # sort the csv and add a header
         os.system('sort %s/results/%s_contamination_map_info.csv > %s/results/%s_contamination_map_info2.csv' % (args.output_dir, args.run, args.output_dir, args.run))
@@ -310,9 +311,9 @@ def classification_info(args, results_dir):
                 else:
                     classification_pec = 0 
             else: 
-                classification = int(merge_reads) - int(unclassified_count)
+                classification = int(host_unmap) - int(unclassified_count)
                 if unclassified_count > 0 and host_map > 0:
-                    classification_pec = float(classification)/float(merge_reads)
+                    classification_pec = float(classification)/float(host_unmap)
                 else:
                     classification_pec = 0 
             if args.contamination or args.neg_control:
