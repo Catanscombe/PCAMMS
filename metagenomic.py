@@ -169,7 +169,7 @@ def neg_library(args, directory):
         print 'contamination mapping complete, contamination reads removed from further analysis'
 
     else: 
-        os.system('cp %s/paried*.fsatq %s/' % (args.output_dir, args.output_dir))
+        os.system('cp %s/paired/*.fastq %s/' % (args.output_dir, args.output_dir))
 
 def classify_samples(args, directory):
 ## classify all samples using CLARK-L an dproduce krona plots
