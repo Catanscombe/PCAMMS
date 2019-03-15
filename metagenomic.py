@@ -175,6 +175,8 @@ def classify_samples(args, directory):
 ## classify all samples using CLARK-L an dproduce krona plots
     Clark_dir = ('%s/CLARKSCV1.2.6' % (directory))
     results_dir = os.path.dirname(os.path.abspath('%s/' % (args.output_dir)))
+    results_dir = results_dir + ('%s' % (argsoutput_dir) )
+    print results_dir
     for each_file in os.listdir(args.output_dir):
         if each_file.endswith('_R1.fastq'):
             each_file_split = each_file.split('.')
