@@ -75,5 +75,5 @@ pip install --user multiqc
 #install seqtk
 sudo apt install seqtk
 
-#?symlink scripts/clark etc 
+echo "Installation finish $(date)" 
 

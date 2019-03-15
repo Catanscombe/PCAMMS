@@ -170,8 +170,8 @@ def neg_library(args, directory):
 
 def classify_samples(args, directory):
 ## classify all samples using CLARK-L an dproduce krona plots
-    Clark_dir = ('%s/CLARKSCV1.2.5.1' % (directory))
-    
+    Clark_dir = ('%s/CLARKSCV1.2.6' % (directory))
+    results_dir = os.path.dirname(os.path.abspath('%s/' % (args.output_dir)))
     for each_file in os.listdir(args.output_dir):
         if each_file.endswith('_R1.fastq'):
             each_file_split = each_file.split('.')
@@ -183,7 +183,7 @@ def classify_samples(args, directory):
             except OSError:
                 pass
             cwd = os.getcwd()
-            results_dir = os.path.dirname(os.path.abspath('%s/%s' % (args.output_dir, sample)))
+            
             print results_dir
             os.chdir('%s' % (Clark_dir))
             os.system ( './classify_metagenome.sh  --light -P %s/%s_R1.fastq %s/%s_R2.fastq -n %s -R %s/%s/%s_clark' % ( results_dir, sample, results_dir, sample, args.threads , results_dir, sample, sample))
