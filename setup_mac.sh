@@ -1,22 +1,30 @@
 #!/bin/bash
 
+#install homebrew 
+
+URL_BREW='https://raw.githubusercontent.com/Homebrew/install/master/install'
+
+echo -n '- Installing brew ... '
+echo | /usr/bin/ruby -e "$(curl -fsSL $URL_BREW)" > /dev/null
+if [ $? -eq 0 ]; then echo 'OK'; else echo 'NG'; fi
+
 #update java
-sudo apt install openjdk-8-jdk
+brew cask install java
 
 
 
 #install bwa 
-sudo apt-get install bwa 
+brew install bwa
 
 
-#Download viral database
+sudo easy_install pip
 
 pip install futures
 
 #install CLARK
-pip install futures
-easy_install future
-wget http://clark.cs.ucr.edu/Download/CLARKV1.2.5.tar.gz
+pip install  --user futures
+
+curl -O  http://clark.cs.ucr.edu/Download/CLARKV1.2.5.tar.gz
 tar -xzvf CLARKV1.2.5.tar.gz 
 cd CLARKSCV*
 ./install.sh
@@ -43,7 +51,7 @@ cd ../../..
 
 
 #install krona tools
-wget https://github.com/marbl/Krona/releases/download/v2.7/KronaTools-2.7.tar
+curl -O  https://github.com/marbl/Krona/releases/download/v2.7/KronaTools-2.7.tar
 tar -vxf KronaTools-2.7.tar
 cd KronaTools-2.7/
 sudo ./install.pl
@@ -53,7 +61,7 @@ cd ..
 #download human genome 
 mkdir host
 cd host
-wget ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/*
+curl -O  ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/*
 cat *.gz > human.fasta.gz
 rm !(human.fasta.gz)
 bwa index human.fasta.gz
@@ -61,7 +69,7 @@ cd ..
 
 
 #install nextflow
-wget -qO- https://get.nextflow.io | bash
+curl -s https://get.nextflow.io | bash
 sudo mv nextflow /usr/local/bin/
 
 # install fastqc 
@@ -73,7 +81,7 @@ hash -d pip
 pip install --user multiqc
 
 #install seqtk
-sudo apt install seqtk
+brew install seqtk
 
 echo "Installation finish $(date)" 
 
