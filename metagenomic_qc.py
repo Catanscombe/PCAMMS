@@ -207,7 +207,7 @@ def rename(args):
             line_split= line.split('.')
             if line.endswith('.gz'):
                 os.system('cp %s/%s %s/%s.fastq.gz' % (args.input_dir,line, paired_dir, line_split[0]))
-                os.system('cp %s/%s %s/%s.fastq.gz' % (args.input_dir,line, paired_dir, line_split[0]))
+                os.system('gunzip %s/%s %s/%s.fastq.gz' % (args.input_dir,line, paired_dir, line_split[0]))
             else:
                 os.system('cp %s/%s %s/%s.fastq' % (args.input_dir,line, paired_dir, line_split[0]))
 
