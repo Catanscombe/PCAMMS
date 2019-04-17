@@ -205,7 +205,7 @@ def rename(args):
         for line in open ('%s/sample_list_%s.csv' % (args.output_dir, args.run)):
             line = line.strip()
             line_split= line.split('.')
-            if line.endswitgh('.gz'):
+            if line.endswith('.gz'):
                 os.system('cp %s/%s %s/%s.fastq.gz' % (args.input_dir,line, paired_dir, line_split[0]))
                 os.system('cp %s/%s %s/%s.fastq.gz' % (args.input_dir,line, paired_dir, line_split[0]))
             else:
