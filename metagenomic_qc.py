@@ -189,13 +189,13 @@ def rename(args):
             if '_R1' in line:
                 if line.endswith('.gz'):
                     os.system ('cp %s/%s %s/%s_%s_R1.fastq.gz' % (args.input_dir,line, paired_dir, line_split[0], args.run))
-                    os.system ('gunzip %s/%s_%s_R1.fastq' % (paired_dir, line_split[0], args.run) )
+                    os.system ('gunzip %s/%s_%s_R1.fastq.gz' % (paired_dir, line_split[0], args.run) )
                 else: 
                     os.system ('cp %s/%s %s/%s_%s_R1.fastq' % (args.input_dir,line, paired_dir, line_split[0], args.run))
             if '_R2' in line:
                 if line.endswith('.gz'):
-                    os.system ('cp %s/%s %s/%s_%s_R2.fastq' % (args.input_dir,line, paired_dir, line_split[0], args.run))
-                    os.system ('gunzip %s/%s_%s_R2.fastq' % (paired_dir, line_split[0], args.run) )
+                    os.system ('cp %s/%s %s/%s_%s_R2.fastq.gz' % (args.input_dir,line, paired_dir, line_split[0], args.run))
+                    os.system ('gunzip %s/%s_%s_R2.fastq.gz' % (paired_dir, line_split[0], args.run) )
                 else: 
                     os.system ('cp %s/%s %s/%s_%s_R2.fastq' % (args.input_dir,line, paired_dir, line_split[0], args.run))
         
@@ -205,8 +205,11 @@ def rename(args):
         for line in open ('%s/sample_list_%s.csv' % (args.output_dir, args.run)):
             line = line.strip()
             line_split= line.split('.')
-
-            os.system('cp %s/%s %s/%s.fastq' % (args.input_dir,line, paired_dir, line_split[0]))
+            if line.endswitgh('.gz'):
+                os.system('cp %s/%s %s/%s.fastq.gz' % (args.input_dir,line, paired_dir, line_split[0]))
+                os.system('cp %s/%s %s/%s.fastq.gz' % (args.input_dir,line, paired_dir, line_split[0]))
+            else:
+                os.system('cp %s/%s %s/%s.fastq' % (args.input_dir,line, paired_dir, line_split[0]))
 
         print ('samples copied to %s'  % (paired_dir)) 
 
