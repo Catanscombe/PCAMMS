@@ -2,28 +2,51 @@
 Pipeline for Classifying and Assembling Microbes from Metagenomic Sequencing 
 
 ***THIS PIPELINE IS STILL IN DEVELOPMENT***
+
 Table of Contents
+
 Description:  2
+
 Brief:  2
+
 In-depth: 2
+
 Metagenomic_qc.py 2
+
 metagenomic.py  3
+
 Installation  5
+
 Usage:  6
+
 metagenomic_qc.py 6
+
 metagenomic.py  6
+
 Basic 7
+
 metagenomic_qc.py 7
+
 metagenomic.py  7
+
 With Negative control 8
+
 Multiple negative controls  8
+
 Using a local contamination knowledge 9
+
 Local contamination library 9
+
 List of taxon to ignore 9
+
 Customising host read removal 10
+
 Not removing host 10
+
 Customizing host  10
+
 Running the pipeline from a sample list 10
+
 Renaming samples based on a list  10
 
 
