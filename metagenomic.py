@@ -164,13 +164,11 @@ def neg_library(args, directory):
             if fileinput.isfirstline():
                 print 'sample,input_reads,contamination_map_reads,pec_contamination_map,output_reads'
             print line, 
-        os.system('cp %s/paired/neg_map/*.fastq %s/' % (args.output_dir, args.output_dir))
+        os.system('cp %s/paired/neg_map/*.fastq %s/paired/' % (args.output_dir, args.output_dir))
         os.system('rm -r  %s/paired/neg_map' % (args.output_dir))
 
         print 'contamination mapping complete, contamination reads removed from further analysis'
 
-    else: 
-        os.system('cp %s/paired/*.fastq %s/' % (args.output_dir, args.output_dir))
 
 def classify_samples(args, directory):
 ## classify all samples using CLARK-L an dproduce krona plots
@@ -178,7 +176,7 @@ def classify_samples(args, directory):
     results_dir = os.path.dirname(os.path.abspath('%s/' % (args.output_dir)))
     results_dir = results_dir + ('/%s' % (args.output_dir) )
     print results_dir
-    for each_file in os.listdir(args.output_dir):
+    for each_file in os.listdir('%s/paired/' % (args.output_dir)):
         if each_file.endswith('_R1.fastq'):
             each_file_split = each_file.split('.')
             sample = each_file_split[0]
@@ -192,7 +190,7 @@ def classify_samples(args, directory):
             
             print results_dir
             os.chdir('%s' % (Clark_dir))
-            os.system ( './classify_metagenome.sh  --light -P %s/%s_R1.fastq %s/%s_R2.fastq -n %s -R %s/%s/%s_clark' % ( results_dir, sample, results_dir, sample, args.threads , results_dir, sample, sample))
+            os.system ( './classify_metagenome.sh  --light -P %s/paired/%s_R1.fastq %s/paired/%s_R2.fastq -n %s -R %s/%s/%s_clark' % ( results_dir, sample, results_dir, sample, args.threads , results_dir, sample, sample))
             os.system ('./estimate_abundance.sh --krona -F %s/%s/%s_clark.csv -D DIR_DB' % ( results_dir, sample, sample))
             os.system ('mv results.krn %s/%s/%s_clark_abundance.csv' % (results_dir, sample, sample))
             os.chdir ('%s' % (cwd))
@@ -265,7 +263,7 @@ def classification_info(args, results_dir):
                 d_map_contamination[key] += value
 
     # for all samples put information on read numbers and percentages at all stages into a csv
-    for fastq in os.listdir(args.output_dir):
+    for fastq in os.listdir('%s/paired/' % (args.output_dir)):
         if fastq.endswith('_R1.fastq'):
 
  
@@ -363,7 +361,7 @@ def predict_genome_cov(args, directory):
 
 
     # output taxon Id for each sample
-    for fastq in os.listdir(args.output_dir):
+    for fastq in os.listdir('%s/paired/' %(args.output_dir)):
         if fastq.endswith('_R1.fastq'):
             fastq_split = fastq.split('.')
             sample = fastq_split[0]
@@ -379,7 +377,7 @@ def predict_genome_cov(args, directory):
                     writer.writerows ([result])
 
 # write clean taxon ID file for each sample
-    for fastq in os.listdir(args.output_dir):
+    for fastq in os.listdir('%s/paired' % (args.output_dir)):
         if fastq.endswith('_R1.fastq'):
             fastq_split = fastq.split('.')
             sample = fastq_split[0]
@@ -410,7 +408,7 @@ def predict_genome_cov(args, directory):
             os.system ('sort -nr -k2 %s/%s/%s_taxon_ID_output.csv > %s/%s/%s_taxon_ID_outputs.csv' %(args.output_dir,  sample, sample, args.output_dir, sample, sample)) 
 
     # create a csv each sample calculating the predicted 'genome coverage' of each taxon identified
-    for fastq in os.listdir(args.output_dir):
+    for fastq in os.listdir('%s/paired/' % (args.output_dir)):
         if fastq.endswith('_R1.fastq'):
             fastq_split = fastq.split('.')
             samples = fastq_split[0]
@@ -448,7 +446,7 @@ def predict_genome_cov(args, directory):
                 except ValueError:                                                                                                                                                                              
                     pass        
     # create a csv for the whole run containing taxon predicted to have > 0.25% genome coverage
-    for fastq in os.listdir(args.output_dir):
+    for fastq in os.listdir('%s/paired/' % (args.output_dir)):
         if fastq.endswith('_R1.fastq'):
             fastq_split = fastq.split('.')
             sample = fastq_split[0]
@@ -558,22 +556,9 @@ def auto_assemble(args, directory):
                 except OSError:
                     pass
                     
-                #print ('%s is ref' % (result_filename))                      
-                #if os.path.exists('%s/refs/%s' % (directory, result_filename)):
-                 #   print 'exists'
-                  #  os.system ('gunzip -f %s/refs/%s' % (directory, result_filename ))
                 writer= csv.writer (f, delimiter = ',')
                 writer.writerow ([line[0],name, genome_size, line[2], line[5], line[6] , result_ftp_unzip , result_ftp])
                     
-                #if not os.path.exists('%s/refs/%s' % (directory, result_filename)):
-                 #   print line[0]  
-                  #  print ('downloading %s' % (result_filename))  
-                    #os.system ('wget -P %s/refs %s ' % (directory, result_ftp))
-                   # os.system ('gunzip -f %s/refs/%s' % (directory, result_filename ))
-                    
-            
-                    #writer= csv.writer (f, delimiter = ',')
-                    #writer.writerow ([line[0],name, genome_size, line[2], line[5], line[6] , result_ftp_unzip , result_ftp])
 
         with open ('%s/%s_wget_ref.csv' % (args.output_dir, args.run) , 'a') as rf:
             for line in open ('%s/%s_sample_ref.csv' % (args.output_dir, args.run )).readlines():

@@ -30,7 +30,7 @@ def main():
     remove_work_dir ()
 
 def id_dir( args, directory):
-## check if input and output directorys exists, if optional files are given, checks the file path,  makes sample list
+    ## check if input and output directorys exists, if optional files are given, checks the file path,  makes sample list
     #check input dir exists
     counter =0
 
@@ -107,13 +107,11 @@ def id_dir( args, directory):
    
 
 def rename(args):
-## copy paired end reads to paired directory in output directory and rename where appropriate
+    ## copy paired end reads to paired directory in output directory and rename where appropriate
 
     # make a dir in results to house paried end reads    
-    try:
+    if not os.path.exists('%s/paired' % (args.output_dir)):
         os.mkdir('%s/paired' % (args.output_dir))
-    except OSError:
-        pass
     
     paired_dir = (args.output_dir + "/paired")
 
@@ -189,13 +187,15 @@ def rename(args):
             if '_R1' in line:
                 if line.endswith('.gz'):
                     os.system ('cp %s/%s %s/%s_%s_R1.fastq.gz' % (args.input_dir,line, paired_dir, line_split[0], args.run))
-                    os.system ('gunzip %s/%s_%s_R1.fastq.gz' % (paired_dir, line_split[0], args.run) )
+                    if os.path.exists('%s/%s_%s_R1.fastq.gz' % (paired_dir, line_split[0], args.run)):
+                        os.system ('gunzip %s/%s_%s_R1.fastq.gz' % (paired_dir, line_split[0], args.run))
                 else: 
                     os.system ('cp %s/%s %s/%s_%s_R1.fastq' % (args.input_dir,line, paired_dir, line_split[0], args.run))
             if '_R2' in line:
                 if line.endswith('.gz'):
                     os.system ('cp %s/%s %s/%s_%s_R2.fastq.gz' % (args.input_dir,line, paired_dir, line_split[0], args.run))
-                    os.system ('gunzip %s/%s_%s_R2.fastq.gz' % (paired_dir, line_split[0], args.run) )
+                    if os.path.exists('%s/%s_%s_R2.fastq.gz' % (paired_dir, line_split[0], args.run)):
+                        os.system ('gunzip %s/%s_%s_R2.fastq.gz' % (paired_dir, line_split[0], args.run) )
                 else: 
                     os.system ('cp %s/%s %s/%s_%s_R2.fastq' % (args.input_dir,line, paired_dir, line_split[0], args.run))
         

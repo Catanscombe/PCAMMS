@@ -40,7 +40,7 @@ cd DIR_DB/taxonomy
 shopt -s extglob 
 rm -- !(nodes.dmp)
 cd ../../..
-
+gzip ../example/sample1_meta_R* 
 
 #install krona tools
 wget https://github.com/marbl/Krona/releases/download/v2.7/KronaTools-2.7.tar
