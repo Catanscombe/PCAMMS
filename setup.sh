@@ -7,7 +7,7 @@ sudo apt install openjdk-8-jdk
 
 #install bwa 
 sudo apt-get install bwa 
-
+udo apt-get install bedtools
 
 #Download viral database
 
